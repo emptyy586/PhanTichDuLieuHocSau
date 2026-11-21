@@ -1,43 +1,55 @@
-# M5 Forecasting - Dự án phân tích dữ liệu và học sâu
+# Đề tài 17 – Dự báo nhu cầu xác suất và mô phỏng chính sách bổ sung hàng tồn kho (M5, CA_1 × FOODS_3)
 
-## Mục tiêu
-Dự án phân tích chuỗi thời gian M5 Walmart theo cửa hàng CA_1 và nhóm hàng FOODS_3, tập trung vào:
-- EDA và phân loại chuỗi theo ADI/CV²
-- Baseline thống kê theo các mô hình WindowAverage, SeasonalNaive, CrostonSBA, TSB
-- Chuẩn bị dữ liệu cho giai đoạn mô phỏng tồn kho và dự báo phân vị sau này
+Dự báo phân phối nhu cầu cửa sổ (lead time + chu kỳ đặt) cho 823 chuỗi, chọn mức order-up-to theo phân vị và mô phỏng tồn kho. Chia dữ liệu: train đến 2016-03-27, validation 28 ngày (2016-03-28→04-24), test 28 ngày (2016-04-25→05-22). Báo cáo từng giai đoạn: `results/reports/`; bản nháp báo cáo cuối: `results/reports/final_report.md`.
 
-## Cách chạy lại từ đầu
-1. Tạo môi trường ảo Python 3.12:
-   ```powershell
-   py -3.12 -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   ```
-2. Cài đặt phụ thuộc:
-   ```powershell
-   python -m pip install --upgrade pip
-   python -m pip install -r requirements.txt
-   ```
-3. Chạy pipeline dữ liệu:
-   ```powershell
-   python src/data.py
-   ```
-4. Mở notebook EDA và phân loại trong thư mục notebooks/.
+## Chạy lại toàn bộ từ đầu (Windows, PowerShell, Python 3.12)
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python -m pip install torch==2.15.0 --index-url https://download.pytorch.org/whl/cpu   # bản CPU
 
-## Cấu trúc thư mục chính
-- data/raw/: dữ liệu gốc M5
-- data/processed/: dữ liệu đã xử lý dạng parquet
-- src/: các script Python cho tiền xử lý và mô hình
-- notebooks/: notebook phân tích và EDA
-- results/: kết quả số liệu và biểu đồ
-- configs/: file cấu hình YAML
+# Dữ liệu M5 gốc (calendar.csv, sales_train_evaluation.csv, sell_prices.csv) đặt trong data/raw/
+python src/data.py                      # -> data/processed/ca1_foods3.parquet
+python -m src.features                  # -> results/series_classes.csv, hình ADI-CV²
+python -m src.run_forecasts --split val # ~7 phút CPU: tinh chỉnh + dự báo val -> hparams.json, forecast_eval_val_all.csv
+python -m src.inventory_sim --split val # mô phỏng tồn kho val -> inventory_sim_val.csv
+python -m src.policy_analysis           # q*, bảng chính sách, hình, bootstrap (val)
+python -m src.run_forecasts --split test   # dùng hparams.json đã chốt (KHÔNG tinh chỉnh lại), ~4 phút
+python -m src.inventory_sim --split test
+python -m src.final_eval                # đánh giá chính sách chốt từ val trên test
+python -m pytest -v                     # 34 test (cần đã chạy các bước trên vì có test đọc file kết quả)
 
-## Lưu ý quan trọng
-- Không đọc dữ liệu bằng Excel; chỉ dùng pandas.
-- Các thống kê phân loại chuỗi chỉ tính trên tập train.
-- Luôn giữ seed cố định ở một nơi duy nhất trong config hoặc src/utils.py.
+# Notebook (Restart & Run All)
+cd notebooks
+python -m jupyter nbconvert --to notebook --execute --inplace 01_eda.ipynb 02_classification.ipynb 03_baseline_stats.ipynb 04_final_results.ipynb
+```
+Seed (42) và mọi tham số (lưới phân vị, lead time, chi phí, lưới tinh chỉnh, cấu hình ML) nằm trong `configs/config.yaml`. Bootstrap của GĐ4 cần `python -m src.policy_analysis`; bootstrap trên test (`results/research_questions_test.csv`) sinh bằng `research_question_stats(..., split="test")` trong `src/policy_analysis.py`.
 
-## Giai đoạn A (đang phát triển)
-- Khởi tạo file mới `src/forecast_prob.py` cho dự báo phân phối và LightGBM xác suất.
-- Mục tiêu: ước lượng phân phối nhu cầu rời rạc không âm bằng NB/Poisson, dự báo rolling-origin trên validation, và đánh giá pinball/coverage theo quantile.
-- Tham số chính được đặt trong `configs/config.yaml` và có thể điều chỉnh theo `lead_time`, `review_period`, `quantile_levels`, `n_samples`, `refit_every`.
-- Giai đoạn A chưa thay thế các output hiện có; file mới lưu dưới `results/` với tên rõ ràng như `forecast_eval_val_smoke.csv` khi chạy smoke test.
+## Cấu trúc thư mục
+- `configs/config.yaml` – cấu hình.
+- `data/raw/`, `data/processed/` – dữ liệu (không đưa vào git).
+- `src/` – `data.py` (split), `features.py` (ADI/CV², speed), `eda.py`, `models_stats.py` + `forecast_prob.py` (baseline/legacy), `prob_models.py` (Panel, Croston/TSB/WindowAverage/SeasonalNaive, NB, chỉ số), `tuning.py`, `ml_models.py` (đặc trưng, LightGBM, MLP-NB), `run_forecasts.py`, `inventory_sim.py`, `policy_analysis.py`, `final_eval.py`, `report_utils.py`.
+- `tests/` – pytest (dự báo, rò rỉ, mô phỏng tồn kho, kiểm tra tích hợp file kết quả).
+- `notebooks/` – 01 EDA, 02 phân loại, 03 baseline, 04 kết quả cuối.
+- `results/` – kết quả, `results/figures/` hình, `results/tables/` bảng, `results/forecasts/{val,test}.npz` dự báo, `results/reports/` báo cáo.
+- `archive/` – file tạm đã dọn (không dùng).
+
+## File kết quả chính
+| File | Nội dung |
+|---|---|
+| `results/series_classes.csv`, `results/tables/demand_speed_counts.csv` | phân loại chuỗi (train) |
+| `results/forecasts/val.npz`, `test.npz` | phân vị (9 mức), trung bình, thực tế cho 7 mô hình × H∈{3,4} |
+| `results/forecast_eval_val_all.csv`, `forecast_eval_test_all.csv` | pinball, coverage, WAPE, MASE theo nhóm |
+| `results/hparams.json`, `tuning_log.csv` | siêu tham số chốt trên val |
+| `results/inventory_sim_val.csv`, `inventory_sim_test.csv` | mô phỏng tồn kho mọi mô hình × q × L × cost_ratio |
+| `results/q_star_val.csv`, `policy_table_val.csv` | q* và bảng chính sách đề xuất |
+| `results/policy_eval_val_test.csv`, `test_qstar_transfer.csv`, `policy_eval_bootstrap.csv`, `research_questions_{val,test}.csv` | so sánh val/test, bootstrap |
+| `results/figures/policy_*.png`, `final_*.png`, `eda_*.png` | biểu đồ (tiếng Việt) |
+| `results/reports/00…05_*.md`, `final_report.md` | báo cáo |
+
+## Lưu ý
+- Chi phí mô phỏng là **tương đối** (giữ 1.0/đơn vị-ngày; thiếu = cost_ratio × 1.0), không phải chi phí thực.
+- MLP-NB là MLP có đầu ra Negative Binomial, không phải DeepAR/N-HiTS/TFT. WRMSSE không được tính (lý do trong báo cáo 02).
+- Pipeline cũ (`forecast_prob.rolling_origin_eval`, `export_validation_outputs`) chỉ giữ để tham chiếu, không dùng cho kết quả chính thức.

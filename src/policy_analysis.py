@@ -166,10 +166,10 @@ def plot_errors(ev: pd.DataFrame, H: int = 3) -> str:
 
 
 # ----------------------------------------------------------------------------- bootstrap theo chuỗi
-def per_series_sim(arr, panel, model: str, L: int, policy: str, q: float | None, ratio: float) -> np.ndarray:
+def per_series_sim(arr, panel, model: str, L: int, policy: str, q: float | None, ratio: float, split: str = "val") -> np.ndarray:
     """Tổng chi phí mô phỏng của TỪNG chuỗi (giữ + thiếu) cho một kịch bản."""
     H = L + int(CONFIG["review_period"])
-    start, end = split_bounds(panel, "val")
+    start, end = split_bounds(panel, split)
     demand = panel.Y[:, start:end + 1]
     if policy == "point":
         lv = np.ceil(arr[f"{model}|H{H}|mean"])
@@ -187,7 +187,7 @@ def paired_bootstrap(diff: np.ndarray, n_boot: int = 2000, seed: int | None = No
     return float(diff.mean()), float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
 
 
-def research_question_stats(sim: pd.DataFrame, panel, arr) -> pd.DataFrame:
+def research_question_stats(sim: pd.DataFrame, panel, arr, split: str = "val") -> pd.DataFrame:
     """Bootstrap theo chuỗi cho 3 câu hỏi: (1) phân vị newsvendor vs điểm; (3) MLP-NB vs TSB/Croston (chi phí, pinball)."""
     rows = []
     speeds = {"overall": np.ones(panel.n_series, bool), "fast": panel.speed == "fast", "medium": panel.speed == "medium", "slow": panel.speed == "slow"}
@@ -195,8 +195,8 @@ def research_question_stats(sim: pd.DataFrame, panel, arr) -> pd.DataFrame:
         for ratio in [float(r) for r in CONFIG["cost_ratios"]]:
             qn = newsvendor_q(ratio)
             for model in MODELS:
-                a = per_series_sim(arr, panel, model, L, "quantile", qn, ratio)
-                b = per_series_sim(arr, panel, model, L, "point", None, ratio)
+                a = per_series_sim(arr, panel, model, L, "quantile", qn, ratio, split)
+                b = per_series_sim(arr, panel, model, L, "point", None, ratio, split)
                 for g, m in speeds.items():
                     mean, lo, hi = paired_bootstrap((a - b)[m])
                     rows.append({"question": "Q1: phan vi q_newsvendor - diem", "model": model, "L": L, "cost_ratio": ratio, "q": qn, "group": g,
@@ -204,7 +204,7 @@ def research_question_stats(sim: pd.DataFrame, panel, arr) -> pd.DataFrame:
     for L in [int(x) for x in CONFIG["lead_times"]]:
         for ratio in [float(r) for r in CONFIG["cost_ratios"]]:
             qn = newsvendor_q(ratio)
-            ref = {m: per_series_sim(arr, panel, m, L, "quantile", qn, ratio) for m in ("TSB", "CrostonSBA", "MLP-NB", "LGBM-Q")}
+            ref = {m: per_series_sim(arr, panel, m, L, "quantile", qn, ratio, split) for m in ("TSB", "CrostonSBA", "MLP-NB", "LGBM-Q")}
             for other in ("TSB", "CrostonSBA", "LGBM-Q"):
                 for g, m in speeds.items():
                     mean, lo, hi = paired_bootstrap((ref["MLP-NB"] - ref[other])[m])

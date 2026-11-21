@@ -48,3 +48,15 @@ def test_actual_in_npz_equals_window_sum_of_val_demand():
 def test_md_table_rounds_to_four_decimals():
     df = pd.DataFrame({"a": [0.123456789]}, index=["x"])
     assert "0.1235" in md_table(df)
+
+
+def test_test_npz_origins_inside_test_split_and_shapes():
+    panel = load_panel()
+    arr = np.load(ROOT / "results" / "forecasts" / "test.npz", allow_pickle=True)
+    for H in (3, 4):
+        o = arr[f"origins_H{H}"]
+        assert o.min() == panel.test_start - 1 and o.max() + H == panel.n_days - 1 and len(o) == 28 - H + 1
+        assert np.array_equal(arr[f"actual_H{H}"], window_targets(panel.Y, H)[:, o])
+        for m in MODELS:
+            Q = arr[f"{m}|H{H}|Q"]
+            assert Q.shape == (823, len(o), len(QGRID)) and (np.diff(Q, axis=-1) >= -1e-9).all()

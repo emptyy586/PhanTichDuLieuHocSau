@@ -1,0 +1,6 @@
+demand_type,fast,medium,slow,total
+erratic,45,0,0,45
+intermittent,74,203,142,419
+lumpy,89,116,34,239
+smooth,118,2,0,120
+total,326,321,176,823

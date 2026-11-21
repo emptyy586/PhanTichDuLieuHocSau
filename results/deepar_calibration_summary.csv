@@ -1,0 +1,5 @@
+split,H,model,n_q,in_bracket,in_bracket_tol,abs_dev_ok
+test,3,DeepAR,7,6,7,4
+test,4,DeepAR,7,5,7,5
+val,3,DeepAR,7,7,7,4
+val,4,DeepAR,7,7,7,4

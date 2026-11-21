@@ -1,0 +1,8 @@
+val 3 full 30 116.9s
+val 3 no_effect_cols 28 91.0s
+val 4 full 30 79.8s
+val 4 no_effect_cols 28 84.7s
+test 3 full 30 115.2s
+test 3 no_effect_cols 28 107.1s
+test 4 full 30 99.0s
+test 4 no_effect_cols 28 99.4s

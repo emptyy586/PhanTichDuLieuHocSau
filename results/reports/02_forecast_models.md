@@ -1,5 +1,7 @@
 # Báo cáo GĐ2 – Mô hình dự báo xác suất (validation)
 
+> **Lưu ý GĐ7**: báo cáo này là ảnh chụp tại GĐ2. Sau GĐ7 (lưới kappa mới) pinball_avg/coverage của CrostonSBA, TSB, LGBM-PoisNB thay đổi nhẹ (chữ số thập phân thứ 3–4; xem `07_sua_loi.md` mục 3.2); bản số liệu cũ ở `archive/pre_gd7/`.
+
 ## 1. Đã làm gì
 **File mới**: `src/prob_models.py` (Panel, mức dự báo Croston-SBA/TSB/WindowAverage/SeasonalNaive vector hóa, NB chính xác bằng `scipy.stats.nbinom.ppf`, ước lượng alpha cuốn chiếu, chỉ số), `src/tuning.py` (chọn siêu tham số trên val), `src/ml_models.py` (30 đặc trưng không rò rỉ, LightGBM phân vị + Poisson, MLP-NB bằng PyTorch), `src/run_forecasts.py` (pipeline val/test), `src/report_utils.py`; `tests/test_prob_models.py` (11 test), `tests/test_outputs.py` (4 test).
 **File sửa** (theo mục D; hành vi phục vụ 7 test cũ giữ nguyên, 7 test cũ vẫn pass): `src/forecast_prob.py` – (a) `sample_total_window` dùng Gamma-Poisson (NB chính xác với mọi n>0, bỏ `max(n,1.0)`); (d) bỏ các cột trùng lặp `roll_mean_{lag}` trong `build_lag_features`; ghi chú *legacy* cho `rolling_origin_eval` (lỗi b: chỉ dùng lịch sử train, không phải rolling-origin thật — không dùng nữa). `configs/config.yaml`: thêm `quantile_grid`, `lead_times`, `alpha_*`, lưới tuning, tham số ML/MLP (giữ nguyên `quantile_levels` cũ cho code legacy).

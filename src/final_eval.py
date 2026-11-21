@@ -7,8 +7,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from src.inventory_sim import MODELS, aggregate, simulate_order_up_to
-from src.policy_analysis import BASE_RATIO, paired_bootstrap
+from src.inventory_sim import MODELS, aggregate, quantile_to_levels, simulate_order_up_to
+from src.policy_analysis import BASE_RATIO, paired_bootstrap, research_question_stats
 from src.prob_models import CONFIG, QGRID, group_masks, load_panel, split_bounds
 from src.utils import ROOT
 
@@ -22,7 +22,7 @@ def group_policy_levels(arr, panel, pol_L: pd.DataFrame, H: int) -> np.ndarray:
     gds = panel.group_ds
     for _, r in pol_L.iterrows():
         m = gds == r.group
-        levels[0, m] = np.ceil(arr[f"{r.model}|H{H}|Q"][m][..., QGRID.index(float(r.q_star))])
+        levels[0, m] = quantile_to_levels(r.model, arr[f"{r.model}|H{H}|Q"][m][..., QGRID.index(float(r.q_star))])
     return levels
 
 
@@ -30,7 +30,7 @@ def case_levels(arr, model: str, H: int, policy: str, q: float | None) -> np.nda
     """Mức order-up-to [1,S,n] cho (mô hình, quantile q) hoặc chính sách điểm."""
     if policy == "point":
         return np.ceil(arr[f"{model}|H{H}|mean"])[None]
-    return np.ceil(arr[f"{model}|H{H}|Q"][..., QGRID.index(float(q))])[None]
+    return quantile_to_levels(model, arr[f"{model}|H{H}|Q"][..., QGRID.index(float(q))])[None]
 
 
 def policy_comparison(panel, arrs: dict, qs: pd.DataFrame, pol: pd.DataFrame, ratio: float = BASE_RATIO) -> tuple[pd.DataFrame, dict]:
@@ -95,6 +95,7 @@ def main() -> None:
                 mean, lo, hi = paired_bootstrap(per[(L, split, a)] - per[(L, split, other)])
                 boot.append({"L": L, "split": split, "A_minus": other, "mean_diff": mean, "ci_lo": lo, "ci_hi": hi})
     pd.DataFrame(boot).to_csv(ROOT / "results" / "policy_eval_bootstrap.csv", index=False)
+    research_question_stats(sim_test, panel, arrs["test"], "test").to_csv(ROOT / "results" / "research_questions_test.csv", index=False)
     print(comp[(comp.group_type == "overall")].round(4).to_string())
 
 

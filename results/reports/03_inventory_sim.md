@@ -1,5 +1,7 @@
 # Báo cáo GĐ3 – Mô phỏng chính sách tồn kho (validation)
 
+> **Lưu ý GĐ7**: báo cáo này là ảnh chụp tại GĐ3, khi mô phỏng dùng `ceil` cho mọi phân vị. Từ GĐ7 phân vị LGBM-Q được làm tròn về số nguyên gần nhất (NB giữ nguyên) nên các số mô phỏng của LGBM-Q (và nhẹ ở CrostonSBA/TSB/LGBM-PoisNB do kappa) khác bản này; xem `07_sua_loi.md` mục 3.1. Bản cũ ở `archive/pre_gd7/`.
+
 ## 1. Đã làm gì
 - `src/inventory_sim.py`: `simulate_order_up_to` (mô phỏng song song nhiều kịch bản, có trace theo ngày), `aggregate` (gộp theo nhóm × cost_ratio), `run_inventory_sim` (mọi mô hình × q × L + chính sách điểm), CLI `python -m src.inventory_sim --split val`.
 - `tests/test_inventory_sim.py` (4 test). `configs/config.yaml`: thêm tham số chi phí (mục dưới).

@@ -1,5 +1,7 @@
 # Báo cáo GĐ4 – Độ nhạy, q* và chính sách bổ sung đề xuất (validation)
 
+> **Lưu ý GĐ7**: số liệu của báo cáo này là ảnh chụp tại GĐ4 (trước làm tròn LGBM-Q và lưới kappa mới); q*, bảng chính sách và các so sánh đã thay đổi một phần. Dùng `05_final_test.md`, `06_bo_sung.md`, `07_sua_loi.md`, `final_report.md` cho số liệu hiện hành.
+
 ## 1. Đã làm gì
 - `src/policy_analysis.py`: bảng q* theo (mô hình, L, cost_ratio, nhóm), bảng chính sách theo nhóm, nội suy "cùng fill rate", bootstrap theo chuỗi (2000 lần, seed 42, có hoàn lại theo chuỗi) và 4 biểu đồ tiếng Việt. Chạy: `python -m src.policy_analysis` (≈14 s).
 - Không sinh thêm mô phỏng: dùng `results/inventory_sim_val.csv` của GĐ3 (đã chứa cost_ratio ∈ {1,2,5,10,20,50} × L ∈ {2,3}); bootstrap mô phỏng lại từng chuỗi từ `results/forecasts/val.npz`.

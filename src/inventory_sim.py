@@ -16,6 +16,15 @@ import pandas as pd
 from src.prob_models import CONFIG, QGRID, group_masks, load_panel, split_bounds
 from src.utils import ROOT
 
+def quantile_to_levels(model: str, q_hat: np.ndarray) -> np.ndarray:
+    """Mức order-up-to từ phân vị dự báo. Phân vị NB đã là số nguyên → giữ nguyên (không ceil).
+    LGBM-Q cho số thực → làm tròn về số nguyên gần nhất, S = max(0, floor(q_hat + 0.5)) (0.3→0, 0.6→1)."""
+    q_hat = np.asarray(q_hat, dtype=float)
+    if model == "LGBM-Q":
+        return np.maximum(0.0, np.floor(q_hat + 0.5))
+    return q_hat
+
+
 MODELS = ["WindowAverage", "SeasonalNaive", "CrostonSBA", "TSB", "LGBM-Q", "LGBM-PoisNB", "MLP-NB"]
 
 
@@ -106,11 +115,11 @@ def run_inventory_sim(split: str, forecast_path=None, out_path=None, ext: bool =
             if ext:
                 Qe = arr[f"{model}|H{H}|Qext"]
                 for k, q in enumerate(arr["quantile_grid_ext"]):
-                    cases.append(np.ceil(Qe[..., k])), meta.append((model, "quantile", float(q)))
+                    cases.append(quantile_to_levels(model, Qe[..., k])), meta.append((model, "quantile", float(q)))
                 continue
             Q = arr[f"{model}|H{H}|Q"]
             for k, q in enumerate(QGRID):
-                cases.append(np.ceil(Q[..., k])), meta.append((model, "quantile", q))
+                cases.append(quantile_to_levels(model, Q[..., k])), meta.append((model, "quantile", q))
             cases.append(np.ceil(arr[f"{model}|H{H}|mean"])), meta.append((model, "point", np.nan))
         res = simulate_order_up_to(demand, np.stack(cases), L)
         for r in aggregate(res, demand, masks, holding, ratios):

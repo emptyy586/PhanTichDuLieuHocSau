@@ -1,11 +1,11 @@
-[test] WindowAverage: {'params': {}, 'kappa': 0.5, 'w_series': 0.5, 'pinball_avg': 1.183736162258155}  (2.2s)
-[test] SeasonalNaive: {'params': {}, 'kappa': 0.5, 'w_series': 1.0, 'pinball_avg': 1.5131703310797477}  (1.8s)
-[test] CrostonSBA: {'params': {'alpha': 0.1}, 'kappa': 0.5, 'w_series': 0.5, 'pinball_avg': 1.3868294690054106}  (1.9s)
-[test] TSB: {'params': {'alpha_d': 0.05, 'alpha_p': 0.1}, 'kappa': 0.5, 'w_series': 0.5, 'pinball_avg': 1.1387254359182064}  (1.9s)
+[test] WindowAverage: {'params': {}, 'kappa': 0.5, 'w_series': 0.5, 'pinball_avg': 1.183736162258155}  (1.9s)
+[test] SeasonalNaive: {'params': {}, 'kappa': 0.5, 'w_series': 1.0, 'pinball_avg': 1.5131703310797477}  (1.5s)
+[test] CrostonSBA: {'params': {'alpha': 0.1}, 'kappa': 0.6, 'w_series': 0.5, 'pinball_avg': 1.3860390176652024}  (1.8s)
+[test] TSB: {'params': {'alpha_d': 0.05, 'alpha_p': 0.1}, 'kappa': 0.6, 'w_series': 0.5, 'pinball_avg': 1.1377283261156288}  (1.7s)
 [test] H=3: train rows=587565, features=30
-[test] LightGBM H=3 xong (48.6s)
-[test] MLP-NB H=3: epoch=17 (43.6s)
+[test] LightGBM H=3 xong (74.7s)
+[test] MLP-NB H=3: epoch=17 (52.5s)
 [test] H=4: train rows=587493, features=30
-[test] LightGBM H=4 xong (43.0s)
-[test] MLP-NB H=4: epoch=30 (98.4s)
-[test] xong trong 252.2s
+[test] LightGBM H=4 xong (79.9s)
+[test] MLP-NB H=4: epoch=30 (84.7s)
+[test] xong trong 309.7s

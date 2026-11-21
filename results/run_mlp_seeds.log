@@ -1,5 +1,6 @@
-seed 42 xong 210s
-seed 43 xong 193s
-seed 44 xong 201s
+seed 42 xong 736s
+seed 43 xong 389s
+seed 44 xong 298s
 H=3: best_epoch (max 80) = 58
 H=4: best_epoch (max 80) = 46
+CHAIN_DONE

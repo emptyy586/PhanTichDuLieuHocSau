@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.inventory_sim import MODELS, simulate_order_up_to
+from src.inventory_sim import MODELS, quantile_to_levels, simulate_order_up_to
 from src.prob_models import CONFIG, QGRID, load_panel, pinball_loss, split_bounds
 from src.utils import ROOT
 
@@ -174,7 +174,7 @@ def per_series_sim(arr, panel, model: str, L: int, policy: str, q: float | None,
     if policy == "point":
         lv = np.ceil(arr[f"{model}|H{H}|mean"])
     else:
-        lv = np.ceil(arr[f"{model}|H{H}|Q"][..., QGRID.index(q)])
+        lv = quantile_to_levels(model, arr[f"{model}|H{H}|Q"][..., QGRID.index(q)])
     res = simulate_order_up_to(demand, lv[None], L)
     return float(CONFIG["holding_cost"]) * (res["hold_units"][0] + ratio * res["lost"][0])
 

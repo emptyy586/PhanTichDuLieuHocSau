@@ -22,18 +22,27 @@ def exog_mask(names: list[str]) -> np.ndarray:
     return np.array([not n.startswith(EXOG_PREFIXES) for n in names])
 
 
-def run() -> pd.DataFrame:
-    """Huấn luyện LightGBM-Q đầy đủ (đối chứng, cùng cấu hình) và bản bỏ ngoại sinh cho val và test; trả về bảng chỉ số."""
+EFFECT_COLS = ("fut_wd_index", "fut_event_index")  # chỉ số hiệu ứng thứ/sự kiện (mã hóa mục tiêu trong mẫu)
+
+
+def effect_mask(names: list[str]) -> np.ndarray:
+    """True cho các cột được giữ khi bỏ RIÊNG hai cột fut_wd_index và fut_event_index."""
+    return np.array([n not in EFFECT_COLS for n in names])
+
+
+def run(variant_masks=None, out_name: str = "ablation_exog.csv") -> pd.DataFrame:
+    """Huấn luyện LightGBM-Q đầy đủ (đối chứng, cùng cấu hình) và các bản bỏ cột cho val và test; trả về bảng chỉ số.
+    variant_masks: dict tên -> hàm(names)->mask; mặc định {"no_exog": exog_mask}."""
+    variant_masks = variant_masks or {"no_exog": exog_mask}
     panel = load_panel()
     rows, timing = [], {}
     for split, last_label in [("val", panel.val_start - 1), ("test", panel.test_start - 1)]:
         for H in horizons():
             X, y, _, names = ml.make_training_set(panel, H, last_label, last_label)
-            keep = exog_mask(names)
             org = origins_for_split(panel, split, H)
             Xe, _ = ml.build_features(panel, H, org, last_label)
             no_sale = Xe[..., names.index("age_days")] < 0
-            for variant, cols in [("full", np.ones(len(names), bool)), ("no_exog", keep)]:
+            for variant, cols in [("full", np.ones(len(names), bool))] + [(v, f(names)) for v, f in variant_masks.items()]:
                 t0 = time.time()
                 models = ml.fit_lgbm(X[:, cols], y)
                 fc = ml.predict_lgbm(models, Xe[..., cols], Xe.shape[:2], no_sale)
@@ -43,9 +52,14 @@ def run() -> pd.DataFrame:
                 timing[f"{split}_H{H}_{variant}"] = time.time() - t0
                 print(split, H, variant, int(cols.sum()), f"{timing[f'{split}_H{H}_{variant}']:.1f}s", flush=True)
     out = pd.concat(rows, ignore_index=True)
-    out.to_csv(ROOT / "results" / "ablation_exog.csv", index=False)
+    out.to_csv(ROOT / "results" / out_name, index=False)
     return out
 
 
 if __name__ == "__main__":
-    run()
+    import sys
+
+    if "--effect-cols" in sys.argv:
+        run({"no_effect_cols": effect_mask}, "ablation_effect_cols.csv")
+    else:
+        run()

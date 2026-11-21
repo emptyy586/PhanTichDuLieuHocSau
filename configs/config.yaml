@@ -24,7 +24,7 @@ lead_times: [2, 3]            # H = lead_time + review_period -> H in {3, 4}
 alpha_hist_window: 180        # số gốc lịch sử dùng ước lượng độ phân tán NB cuốn chiếu
 alpha_min: 0.001              # sàn alpha NB (≈ Poisson)
 alpha_max: 20.0
-tune_kappa: [0.1, 0.2, 0.35, 0.5, 0.75, 1.0, 1.5, 2.0]
+tune_kappa: [0.25, 0.35, 0.5, 0.6, 0.8, 1.0, 1.25, 1.5, 2.0]   # GĐ7: lưới mới (trước đó [0.1,0.2,0.35,0.5,0.75,1.0,1.5,2.0] nhưng kappa chạm 0.5)
 tune_w_series: [0.0, 0.5, 1.0]
 croston_alpha_grid: [0.05, 0.1, 0.2, 0.3]
 tsb_alpha_d_grid: [0.05, 0.1, 0.2]

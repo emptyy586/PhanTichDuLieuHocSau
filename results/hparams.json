@@ -15,23 +15,23 @@
     "params": {
       "alpha": 0.1
     },
-    "kappa": 0.5,
+    "kappa": 0.6,
     "w_series": 0.5,
-    "pinball_avg": 1.3868294690054106
+    "pinball_avg": 1.3860390176652024
   },
   "TSB": {
     "params": {
       "alpha_d": 0.05,
       "alpha_p": 0.1
     },
-    "kappa": 0.5,
+    "kappa": 0.6,
     "w_series": 0.5,
-    "pinball_avg": 1.1387254359182064
+    "pinball_avg": 1.1377283261156288
   },
   "LGBM-PoisNB": {
-    "kappa": 0.75,
+    "kappa": 0.8,
     "w_series": 1.0,
-    "pinball_avg": 1.0246775747473804
+    "pinball_avg": 1.0246077478684403
   },
   "MLP-NB": {
     "kappa": 0.5,

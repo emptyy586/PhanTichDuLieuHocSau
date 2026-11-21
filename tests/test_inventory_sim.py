@@ -26,16 +26,29 @@ def test_constant_demand_matches_hand_calculation():
     assert (res["trace"]["order"][: n - 1, 0, 0] == 2.0).all() and (res["trace"]["order"][n - 1:] == 0).all()
 
 
-def test_inventory_conservation_every_day():
-    demand, levels, L = _random_case()
-    res = simulate_order_up_to(demand, levels, L, return_trace=True)
-    tr = res["trace"]
-    prev_end = levels[:, :, 0]
-    for d in range(tr["end"].shape[0]):
-        assert np.allclose(tr["start"][d], prev_end)
-        assert np.allclose(tr["start"][d] + tr["received"][d] - tr["sales"][d], tr["end"][d])  # tồn đầu + nhận - bán = tồn cuối
-        prev_end = tr["end"][d]
-    assert np.allclose(res["sales"] + res["lost"], demand.sum(axis=1)[None, :])
+def test_order_accounting_and_inventory_position_after_ordering():
+    """Tổng đặt = tổng đã về + hàng còn đang về cuối kỳ; vị trí tồn kho sau đặt hàng = max(S, vị trí trước đó) mọi ngày đặt."""
+    for L in (2, 3):
+        demand, levels, _ = _random_case(L=L)
+        rng = np.random.default_rng(L)
+        levels = np.ceil(levels * (0.6 + 0.8 * rng.random(levels.shape)))  # mức S đổi theo ngày
+        C, S, n = levels.shape
+        D = demand.shape[1]
+        tr = simulate_order_up_to(demand, levels, L, return_trace=True)["trace"]
+        order, received, end = tr["order"], tr["received"], tr["end"]  # [D, C, S]; chỉ số ngày d-1
+        assert order.min() >= 0 and np.allclose(order[n - 1:], 0)  # không đặt khi hết gốc có dự báo
+        still_in_pipe = sum(order[d - 1] for d in range(1, D + 1) if d + L > D)
+        assert np.allclose(order.sum(axis=0), received.sum(axis=0) + still_in_pipe)
+        for d in range(1, n):
+            pipe_before = sum(order[e - 1] for e in range(1, d) if e + L > d) if d > 1 else 0.0
+            ip_before = end[d - 1] + pipe_before
+            assert np.allclose(ip_before + order[d - 1], np.maximum(levels[:, :, d], ip_before))
+        assert np.allclose(sim_sales_plus_lost(demand, levels, L), demand.sum(axis=1)[None, :])
+
+
+def sim_sales_plus_lost(demand, levels, L):
+    res = simulate_order_up_to(demand, levels, L)
+    return res["sales"] + res["lost"]
 
 
 def test_costs_nonnegative_and_fill_rate_range_and_monotone_in_level():

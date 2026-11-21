@@ -73,7 +73,7 @@ Chọn kappa (cấu hình tốt nhất, n_samples=300):
 Cấu hình tốt nhất là cấu hình LỚN NHẤT trong lưới (hidden 64, 2 lớp, context 112) và còn đang giảm theo kích thước, nên có thể còn tốt hơn ngoài lưới (không mở rộng vì ngân sách CPU).
 
 ## 5. Kết quả dự báo (val và test, 8 mô hình)
-Mô hình chính = seed 42 (như MLP-NB). pinball_avg = trung bình pinball trên 9 mức q (lưới chính); WAPE trên trung bình cửa sổ (DeepAR: trung bình mẫu); MASE scale chỉ train. Các số của 7 mô hình cũ là số cũ, không đổi.
+**Con số "chính" trong mọi bảng so sánh của DeepAR và MLP-NB là SEED 42 (một seed, không phải trung bình hay ensemble)**, cho CẢ HAI mô hình. (a)+(b) Seed 42 được chốt TRƯỚC khi thấy kết quả: đây là phần tử đầu của `mlp_seeds` trong `configs/config.yaml` (cố định từ GĐ6, trước DeepAR), MLP-NB dùng seed 42 làm mô hình chính từ GĐ2 (`hparams.json`), và mã DeepAR dùng `seeds[0]` ngay từ lần viết đầu (tuning và mô hình chính đều seed 42); không chọn seed theo val hay test. Seed 43, 44 chỉ để đo độ ổn định. Khác biệt cần nhớ: kappa của MLP-NB chọn riêng cho từng seed (seed 42: 0.5; seed 43, 44: 0.6), kappa của DeepAR chọn một lần theo seed 42 (0.5) rồi dùng cho cả 3 seed; epoch chọn riêng từng seed ở cả hai mô hình. Dưới mỗi bảng có thêm dòng TRUNG BÌNH 3 SEED ± độ lệch chuẩn (ddof=1) cho cả DeepAR và MLP-NB, tính cùng cách (mean ± sd của chỉ số tổng thể trên 3 seed). pinball_avg = trung bình pinball trên 9 mức q (lưới chính); WAPE trên trung bình cửa sổ (DeepAR: trung bình mẫu); MASE scale chỉ train. Các số của 7 mô hình cũ là số cũ, không đổi.
 H=3:
 | model | pinball_avg_val | pinball_avg_test | wape_val | wape_test | mase_val | mase_test |
 |---|---|---|---|---|---|---|
@@ -85,6 +85,8 @@ H=3:
 | LGBM-PoisNB | 0.9300 | 0.9490 | 0.3697 | 0.3508 | 0.7672 | 0.7870 |
 | MLP-NB | 0.9025 | 0.9477 | 0.3701 | 0.3512 | 0.7597 | 0.7839 |
 | DeepAR | 0.9147 | 1.0045 | 0.3700 | 0.3628 | 0.7737 | 0.8055 |
+| DeepAR – TB 3 seed ± sd | 0.9172 ± 0.0028 | 1.0001 ± 0.0051 | 0.3692 ± 0.0007 | 0.3609 ± 0.0016 | 0.7736 ± 0.0009 | 0.8023 ± 0.0030 |
+| MLP-NB – TB 3 seed ± sd | 0.9023 ± 0.0008 | 0.9460 ± 0.0024 | 0.3680 ± 0.0029 | 0.3515 ± 0.0004 | 0.7559 ± 0.0043 | 0.7843 ± 0.0005 |
 
 H=4:
 | model | pinball_avg_val | pinball_avg_test | wape_val | wape_test | mase_val | mase_test |
@@ -97,6 +99,8 @@ H=4:
 | LGBM-PoisNB | 1.1192 | 1.1506 | 0.3333 | 0.3166 | 0.7884 | 0.8051 |
 | MLP-NB | 1.0929 | 1.1489 | 0.3328 | 0.3165 | 0.7746 | 0.8024 |
 | DeepAR | 1.1016 | 1.2384 | 0.3358 | 0.3306 | 0.7995 | 0.8298 |
+| DeepAR – TB 3 seed ± sd | 1.1061 ± 0.0042 | 1.2313 ± 0.0085 | 0.3357 ± 0.0009 | 0.3285 ± 0.0019 | 0.8006 ± 0.0011 | 0.8256 ± 0.0039 |
+| MLP-NB – TB 3 seed ± sd | 1.0897 ± 0.0039 | 1.1433 ± 0.0058 | 0.3315 ± 0.0022 | 0.3170 ± 0.0006 | 0.7748 ± 0.0043 | 0.8031 ± 0.0032 |
 
 Ba seed của DeepAR và MLP-NB (trung bình ± độ lệch chuẩn, n=3). DeepAR:
 | split | H | n_seed | pinball_avg | wape | mase | epochs | kappa |
@@ -129,6 +133,20 @@ Chi tiết từng seed của DeepAR:
 | 43 | test | 4 | 0.5000 | 12 | 1.2336 | 0.3281 | 0.8220 | 675.4000 | 194.4000 |
 | 44 | test | 3 | 0.5000 | 12 | 0.9946 | 0.3598 | 0.8019 | 666.6000 | 198.0000 |
 | 44 | test | 4 | 0.5000 | 12 | 1.2218 | 0.3269 | 0.8249 | 666.6000 | 198.2000 |
+
+
+### 5.1 Làm rõ seed và bảng trung bình 3 seed (GĐ8b)
+**Con số "chính" trong mọi bảng so sánh của DeepAR và MLP-NB là SEED 42 (một seed, không phải trung bình hay ensemble)**, cho CẢ HAI mô hình. (b) Seed 42 được chốt TRƯỚC khi thấy kết quả: đây là phần tử đầu của `mlp_seeds` trong `configs/config.yaml` (cố định từ GĐ6, trước DeepAR), MLP-NB dùng seed 42 làm mô hình chính từ GĐ2 (`hparams.json`), và mã DeepAR dùng `seeds[0]` ngay từ lần viết đầu (tuning và mô hình chính đều seed 42); không chọn seed theo val hay test. Seed 43, 44 chỉ để đo độ ổn định. Khác biệt cần nhớ: kappa của MLP-NB chọn riêng cho từng seed (seed 42: 0.5; seed 43, 44: 0.6), kappa của DeepAR chọn một lần theo seed 42 (0.5) rồi dùng cho cả 3 seed; epoch chọn riêng từng seed ở cả hai mô hình.
+Trung bình ± sd 3 seed của pinball_avg (cùng cách tính cho hai mô hình; số seed 42 và các số khác trong báo cáo KHÔNG đổi):
+
+| Chỉ số | DeepAR | MLP-NB | DeepAR − MLP-NB (trung bình seed) |
+|---|---|---|---|
+| pinball_avg val H=3 | 0.9172 ± 0.0028 (từng seed: 0.9147, 0.9202, 0.9168) | 0.9023 ± 0.0008 (từng seed: 0.9025, 0.9014, 0.9029) | +0.0149 |
+| pinball_avg val H=4 | 1.1061 ± 0.0042 (từng seed: 1.1016, 1.1098, 1.1069) | 1.0897 ± 0.0039 (từng seed: 1.0929, 1.0909, 1.0853) | +0.0164 |
+| pinball_avg test H=3 | 1.0001 ± 0.0051 (từng seed: 1.0045, 1.0012, 0.9946) | 0.9460 ± 0.0024 (từng seed: 0.9477, 0.9471, 0.9432) | +0.0541 |
+| pinball_avg test H=4 | 1.2313 ± 0.0085 (từng seed: 1.2384, 1.2336, 1.2218) | 1.1433 ± 0.0058 (từng seed: 1.1489, 1.1435, 1.1374) | +0.0880 |
+
+Kết luận so sánh theo trung bình 3 seed: **không đổi chiều**. MLP-NB có pinball_avg thấp hơn DeepAR ở cả bốn ô (val/test × H=3,4); seed tốt nhất của DeepAR vẫn kém seed kém nhất của MLP-NB ở cả 4 ô (dải seed không chồng lấn). Chênh lệch trung bình seed khoảng 0.015 (val H=3) và 0.054 (test H=3), lớn hơn nhiều sd giữa các seed. Điểm cần nói rõ: ở val, KTC bootstrap THEO CHUỖI của seed 42 chứa 0 (hai mô hình không phân biệt được khi lấy mẫu chuỗi), nhưng theo trục seed DeepAR kém đều đặn; hai loại nhiễu này khác nhau và kết luận "MLP-NB ≥ DeepAR" nhất quán với cả hai (độ chắc chắn trên val thấp hơn trên test).
 
 **Theo nhóm tốc độ** (pinball_avg, WAPE, MASE; H=3; đánh giá dự báo cửa sổ, không phụ thuộc tỷ lệ chi phí/L/q). val:
 | model | pinball_avg_fast | pinball_avg_medium | pinball_avg_slow | wape_fast | wape_medium | wape_slow | mase_fast | mase_medium | mase_slow |

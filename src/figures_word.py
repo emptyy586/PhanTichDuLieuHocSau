@@ -1,4 +1,4 @@
-"""GĐ9: vẽ lại hình để đưa vào báo cáo Word (không đổi số liệu; chỉ đọc CSV/npz có sẵn).
+"""GĐ9/9b: vẽ lại hình để đưa vào báo cáo Word (không đổi số liệu; chỉ đọc CSV/npz có sẵn).
 
 Quy cách: rộng 6.3 inch, dpi 300, chữ >= 8pt (số trong ô heatmap >= 7pt), bỏ tiền tố số hình trong tiêu đề, tiêu đề ghi tập dữ liệu/tham số.
     python -m src.figures_word
@@ -124,7 +124,7 @@ def qstar_heatmaps(sim_val: pd.DataFrame) -> list[str]:
                     ax.text(j, i, f"{v:.2f}", ha="center", va="center", color="white" if v < 0.85 else "black", fontsize=7)
             ax.set_title(m)
             ax.set_xlabel("Chi phí thiếu / chi phí giữ")
-        fig.suptitle(f"q* chọn trên validation theo tỷ lệ chi phí và nhóm hàng (L={L0}; hình {part}/2)")
+        fig.suptitle(f"q* chọn trên validation theo tỷ lệ chi phí và nhóm hàng (L={L0})")
         fig.tight_layout(rect=[0, 0.12, 1, 0.97])
         cax = fig.add_axes([0.25, 0.075, 0.5, 0.016])
         cb = fig.colorbar(im, cax=cax, orientation="horizontal")
@@ -228,11 +228,149 @@ def nll_curves() -> list[str]:
     return names
 
 
+# ----------------------------------------------------------------------------- GĐ9b: hình tổng hợp val vs test
+def final_val_vs_test_forecast() -> str:
+    """Sai số dự báo cửa sổ H=3 tổng thể: validation vs test cho 8 mô hình (pinball TB mọi q và WAPE)."""
+    ev = {s: pd.concat([pd.read_csv(ROOT / "results" / f"forecast_eval_{s}_all.csv"), pd.read_csv(ROOT / "results" / f"forecast_eval_deepar_{s}_all.csv")], ignore_index=True) for s in ("val", "test")}
+    fig, axes = plt.subplots(1, 2, figsize=(W, 3.6))
+    x = np.arange(len(ALL))
+    w = 0.38
+    for ax, metric, title in zip(axes, ["pinball_avg", "wape"], ["Pinball trung bình (mọi q)", "WAPE (trung bình cửa sổ)"]):
+        vals = {s: ev[s][(ev[s].H == 3) & (ev[s].group_type == "overall") & (ev[s].metric == metric)].set_index("model").value.reindex(ALL).values for s in ("val", "test")}
+        ax.bar(x - w / 2, vals["val"], w, color=[COLORS[m] for m in ALL], edgecolor="black", linewidth=0.5)
+        ax.bar(x + w / 2, vals["test"], w, color=[COLORS[m] for m in ALL], edgecolor="black", linewidth=0.5, hatch="///")
+        ax.set_xticks(x, ALL, rotation=45, ha="right")
+        ax.set_title(title)
+        ax.set_ylabel("Pinball TB" if metric == "pinball_avg" else "WAPE")
+        ax.grid(axis="x", visible=False)
+    handles = [plt.Rectangle((0, 0), 1, 1, fc="lightgray", ec="black", lw=0.5), plt.Rectangle((0, 0), 1, 1, fc="lightgray", ec="black", lw=0.5, hatch="///")]
+    fig.suptitle("Sai số dự báo cửa sổ H=3: validation và test")
+    fig.tight_layout(rect=[0, 0.08, 1, 0.95])
+    _legend_below(fig, handles, ["validation (nền đặc)", "test (nền gạch chéo)"], ncol=2, y=0.0)
+    return _save(fig, "final_val_vs_test_forecast.png")
+
+
+def final_cost_val_vs_test() -> str:
+    """Chi phí mô phỏng tại q* chọn trên validation: validation vs test, 8 mô hình, L=2 và L=3 (tỷ lệ chi phí 10); chú giải dưới hình (không gán nhãn trực tiếp)."""
+    q = pd.read_csv(ROOT / "results" / "q_star_with_deepar.csv")
+    fig, axes = plt.subplots(1, 2, figsize=(W, 3.6))
+    markers = {"WindowAverage": "o", "SeasonalNaive": "s", "CrostonSBA": "^", "TSB": "v", "LGBM-Q": "D", "LGBM-PoisNB": "P", "MLP-NB": "X", "DeepAR": "*"}
+    for ax, L in zip(axes, (2, 3)):
+        t = q[(q.L == L) & (q.cost_ratio == RATIO)].set_index("model").reindex(ALL)
+        for m in ALL:
+            ax.scatter(t.loc[m, "cost_val"], t.loc[m, "cost_test"], color=COLORS[m], marker=markers[m], s=60 if m == "DeepAR" else 38, edgecolor="black", linewidths=0.5, zorder=3)
+        lo = min(t.cost_val.min(), t.cost_test.min()) - 6
+        hi = max(t.cost_val.max(), t.cost_test.max()) + 6
+        ax.plot([lo, hi], [lo, hi], "k--", lw=0.8)
+        ax.set_xlim(lo, hi); ax.set_ylim(lo, hi)
+        ax.set_title(f"L={L}")
+        ax.set_xlabel("Chi phí TB/chuỗi – validation")
+        ax.set_ylabel("Chi phí TB/chuỗi – test")
+    handles = [plt.Line2D([], [], color=COLORS[m], marker=markers[m], ls="", ms=7 if m == "DeepAR" else 5, markeredgecolor="black", markeredgewidth=0.5) for m in ALL] + [plt.Line2D([], [], color="k", ls="--")]
+    fig.suptitle(f"Chi phí mô phỏng tại q* chọn trên validation: validation và test (chi phí thiếu/giữ = {RATIO:g})")
+    fig.tight_layout(rect=[0, 0.16, 1, 0.94])
+    _legend_below(fig, handles, ALL + ["bằng nhau (val = test)"], ncol=3, y=0.0)
+    return _save(fig, "final_cost_val_vs_test.png")
+
+
+# ----------------------------------------------------------------------------- GĐ9b: hình EDA và phân loại chuỗi
+DT_COLORS = {"smooth": "#1f77b4", "erratic": "#d62728", "intermittent": "#2ca02c", "lumpy": "#9467bd"}
+DT_VI = {"smooth": "smooth", "erratic": "erratic", "intermittent": "intermittent", "lumpy": "lumpy"}
+
+
+def eda_figures() -> list[str]:
+    """Vẽ lại các hình EDA mùa vụ (train, sau ngày ra mắt): xu hướng, thứ, tháng, SNAP/sự kiện, tên sự kiện, tỷ lệ ngày 0."""
+    from src import eda
+
+    data = pd.read_parquet(ROOT / "data" / "processed" / "ca1_foods3.parquet")
+    train = eda.load_train(data)
+    act = eda.active_rows(train)
+    tb = eda.seasonality_tables(act)
+    names = []
+    daily = train.groupby("date")["y"].sum()
+    fig, ax = plt.subplots(figsize=(W, 3.0))
+    ax.plot(daily.index, daily.values, color="gray", alpha=0.45, lw=0.6, label="Tổng doanh số ngày")
+    ax.plot(daily.index, daily.rolling(28, min_periods=1).mean(), color="#d62728", lw=1.6, label="Trung bình trượt 28 ngày")
+    ax.set(title="Tổng doanh số CA_1 × FOODS_3 theo ngày (train)", xlabel="Ngày", ylabel="Tổng đơn vị bán")
+    ax.legend(frameon=False)
+    fig.tight_layout()
+    names.append(_save(fig, "eda_trend_total.png"))
+
+    t = tb["weekday"]
+    fig, ax = plt.subplots(figsize=(W, 3.0))
+    ax.bar(eda.WEEKDAY_VI, t["mean_y"], color="#ff7f0e", edgecolor="black", linewidth=0.5)
+    ax.set(title="Doanh số trung bình theo thứ trong tuần (train)", xlabel="Thứ", ylabel="Đơn vị/chuỗi/ngày")
+    ax.grid(axis="x", visible=False)
+    fig.tight_layout()
+    names.append(_save(fig, "eda_weekday.png"))
+
+    t = tb["month"]
+    fig, ax = plt.subplots(figsize=(W, 3.0))
+    ax.bar(t["month"].astype(str), t["mean_y"], color="#2ca02c", edgecolor="black", linewidth=0.5)
+    ax.set(title="Doanh số trung bình theo tháng (train)", xlabel="Tháng", ylabel="Đơn vị/chuỗi/ngày")
+    ax.grid(axis="x", visible=False)
+    fig.tight_layout()
+    names.append(_save(fig, "eda_month.png"))
+
+    fig, axes = plt.subplots(1, 2, figsize=(W, 3.0))
+    axes[0].bar(["Không SNAP", "Có SNAP"], tb["snap"]["mean_y"], color=["#7aa6c2", "#f4a261"], edgecolor="black", linewidth=0.5)
+    axes[0].set(title="Theo ngày SNAP", ylabel="Đơn vị/chuỗi/ngày")
+    axes[1].bar(["Không sự kiện", "Có sự kiện"], tb["event_flag"]["mean_y"], color=["#8ecae6", "#ffb703"], edgecolor="black", linewidth=0.5)
+    axes[1].set(title="Theo ngày có sự kiện")
+    for a in axes:
+        a.grid(axis="x", visible=False)
+    fig.suptitle("Doanh số trung bình theo SNAP và sự kiện (train)")
+    fig.tight_layout(rect=[0, 0, 1, 0.94])
+    names.append(_save(fig, "eda_snap_event.png"))
+
+    en = tb["event_name"]
+    fig, ax = plt.subplots(figsize=(W, 5.6))
+    ax.barh(en["event_name_1"], en["index_vs_mean"], color="#6a4c93", edgecolor="black", linewidth=0.4)
+    ax.axvline(1.0, color="black", ls="--", lw=0.9)
+    ax.set(title="Chỉ số doanh số theo từng sự kiện (train; 1,0 = trung bình)", xlabel="Chỉ số so với trung bình")
+    ax.tick_params(axis="y", labelsize=8)
+    ax.grid(axis="y", visible=False)
+    ix = list(en["event_name_1"]).index("Christmas")
+    ax.text(0.03, ix, "Christmas = 0 (cửa hàng đóng cửa)", fontsize=8, va="center", ha="left")
+    fig.tight_layout()
+    names.append(_save(fig, "eda_event_names.png"))
+
+    z = act.groupby("id")["y"].apply(lambda v: float((v == 0).mean()))
+    fig, ax = plt.subplots(figsize=(W, 3.0))
+    ax.hist(z, bins=30, color="steelblue", edgecolor="black", linewidth=0.5)
+    ax.axvline(z.median(), color="#d62728", ls="--", label=f"Trung vị = {z.median():.4f}".replace(".", ","))
+    ax.set(title="Phân bố tỷ lệ ngày bán bằng 0 theo chuỗi (train, sau ngày ra mắt)", xlabel="Tỷ lệ ngày bằng 0", ylabel="Số chuỗi")
+    ax.legend(frameon=False)
+    fig.tight_layout()
+    names.append(_save(fig, "eda_zero_rate.png"))
+    return names
+
+
+def adi_cv2_scatter() -> str:
+    """Phân tán ADI – CV² (train) màu theo demand_type, ghi nhãn ngưỡng ADI = 1,32 và CV² = 0,49 (thang log)."""
+    f = pd.read_csv(ROOT / "results" / "series_classes.csv")
+    f = f[np.isfinite(f.adi) & np.isfinite(f.cv2) & (f.cv2 > 0)]
+    adi_t, cv2_t = float(CONFIG["adi_threshold"]), float(CONFIG["cv2_threshold"])
+    fig, ax = plt.subplots(figsize=(W, 4.4))
+    for dt, g in f.groupby("demand_type"):
+        ax.scatter(g.adi, g.cv2, s=9, alpha=0.8, color=DT_COLORS[dt], label=f"{DT_VI[dt]} (n={len(g)})", linewidths=0)
+    ax.axvline(adi_t, color="black", ls="--", lw=0.9)
+    ax.axhline(cv2_t, color="black", ls="--", lw=0.9)
+    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.text(adi_t * 1.04, ax.get_ylim()[0] * 1.3, f"ADI = {adi_t:g}".replace(".", ","), fontsize=8, va="bottom")
+    ax.text(0.995, cv2_t * 1.06, f"CV² = {cv2_t:g}".replace(".", ","), fontsize=8, va="bottom", ha="right", transform=ax.get_yaxis_transform())
+    ax.set(title="Phân bố ADI – CV² của 823 chuỗi theo demand_type (train)", xlabel="ADI (thang log)", ylabel="CV² (thang log)")
+    ax.legend(title="demand_type", frameon=False, loc="upper right")
+    fig.tight_layout()
+    return _save(fig, "adi_cv2_scatter.png")
+
+
 def main() -> None:
     sv, st = _sim("val"), _sim("test")
     out = [cost_by_q("val", sv, sv), cost_by_q("test", sv, st), tradeoff("val", sv, sv), tradeoff("test", sv, st)]
     out += qstar_heatmaps(sv)
     out += [forecast_error("val"), forecast_error("test"), architecture()] + nll_curves()
+    out += [final_val_vs_test_forecast(), final_cost_val_vs_test()] + eda_figures() + [adi_cv2_scatter()]
     print("\n".join(out))
 
 

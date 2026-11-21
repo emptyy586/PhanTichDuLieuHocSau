@@ -37,7 +37,7 @@ python -m src.deepar --stage freeze                   # đóng băng epoch từn
 for S in 42 43 44; do python -m src.deepar --stage seed_test --seed $S --threads 4 & done; wait   # test: một lần
 python -m src.deepar --stage collect_test
 python -m src.deepar_analysis --what sim ; python -m src.deepar_analysis --what tables
-# --- GĐ9: vẽ lại hình cho báo cáo Word (6.3 inch, 300 dpi; không đổi số liệu). Chạy SAU policy_analysis/deepar_analysis vì các bước đó cũng ghi cùng tên file hình ---
+# --- GĐ9/9b: vẽ lại TOÀN BỘ hình cho báo cáo Word (6.3 inch, 300 dpi; không đổi số liệu). Chạy SAU policy_analysis/deepar_analysis vì các bước đó cũng ghi cùng tên file hình ---
 python -m src.figures_word
 python -m pytest -v                     # 64 test (cần đã chạy các bước trên vì có test đọc file kết quả)
 
@@ -74,7 +74,7 @@ Seed (42) và mọi tham số (lưới phân vị, lead time, chi phí, lưới 
 ## Lưu ý
 - Chi phí mô phỏng là **tương đối** (giữ 1.0/đơn vị-ngày; thiếu = cost_ratio × 1.0), không phải chi phí thực.
 - MLP-NB là MLP có đầu ra Negative Binomial, không phải DeepAR/N-HiTS/TFT. WRMSSE không được tính (lý do trong báo cáo 02).
-- Lưu ý GĐ9: hình báo cáo Word do `src/figures_word.py` vẽ (không tiền tố số hình, có bản `_test`, heatmap q* chia 2 hình `policy_qstar_heatmap.png`/`_b.png`); không đổi CSV/npz/json.
+- Lưu ý GĐ9/9b: MỌI hình báo cáo Word do `src/figures_word.py` vẽ (`python -m src.figures_word`; gồm hình chính sách/dự báo, `final_*`, `eda_*`, `adi_cv2_scatter`, sơ đồ DeepAR, đường NLL; không tiền tố số hình, có bản `_test`, heatmap q* chia 2 hình `policy_qstar_heatmap.png`/`_b.png`); không đổi CSV/npz/json. Notebook 01/02 và các bước phân tích cũ cũng ghi cùng tên file hình ở phong cách cũ, vì vậy chạy `src.figures_word` SAU CÙNG.
 - Lưu ý GĐ8: thêm DeepAR-style (`src/deepar.py`, `src/deepar_analysis.py`, siêu tham số `results/hparams_deepar.json`); mọi số liệu của 7 mô hình cũ KHÔNG đổi (sha256 các file kết quả cũ ở `results/gd8_baseline_hashes.txt`, tag git `pre-gd8`). DeepAR không hơn MLP-NB/LightGBM (xem `08_deepar.md`).
 - Lưu ý GĐ7: mô phỏng làm tròn phân vị LGBM-Q về số nguyên gần nhất (NB giữ nguyên; chính sách điểm vẫn ceil); lưới kappa {0.25…2.0}; chính sách theo nhóm tốc độ không tốt hơn chính sách chung ở L=3 (xem `07_sua_loi.md`). Số liệu trước GĐ7: `archive/pre_gd7/`.
 - Lưu ý GĐ6: kết luận "phân vị tốt hơn điểm" chỉ đúng so với điểm THUẦN; so với điểm có hệ số an toàn chỉ còn hơn ở tỷ lệ chi phí cao; biến ngoại sinh giá/SNAP/sự kiện đóng góp ≤ 1% pinball (xem `06_bo_sung.md`).

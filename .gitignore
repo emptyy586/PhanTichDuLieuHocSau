@@ -1,0 +1,10 @@
+data/
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+
+*.zip
+.pytest_cache/
+data/raw/
+archive/
+

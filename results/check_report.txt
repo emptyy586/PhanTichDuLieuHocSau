@@ -1,0 +1,83 @@
+NGUYEN NHAN:
+- TSB bi thieu truoc do vi make_model_list() chi tao 3 mo hinh va khong luu model duoc chon vao CSV, nen CSV chi co WindowAverage, SeasonalNaive, CrostonSBA.
+- Sau khi sua, script da chay lai va TSB duoc chon qua validation theo WAPE, roi luu vao baseline_stats_val.csv.
+
+OVERALL
+        model   group   n     wape     mase  pinball_q50
+   CrostonSBA overall 823 0.692145 0.955969     0.925884
+SeasonalNaive overall 823 0.739798 1.039365     0.989629
+          TSB overall 823 0.630504 0.880825     0.843426
+WindowAverage overall 823 0.628536 0.878295     0.840794
+
+DEMAND_TYPE
+        model        group   n     wape     mase  pinball_q50
+   CrostonSBA      erratic  45 0.675260 0.714899     1.651439
+   CrostonSBA intermittent 419 0.816628 1.009531     0.659212
+   CrostonSBA        lumpy 239 0.960831 0.955473     0.880139
+   CrostonSBA       smooth 120 0.463726 0.860337     1.676038
+SeasonalNaive      erratic  45 0.741035 0.842164     1.812302
+SeasonalNaive intermittent 419 0.819334 1.088038     0.661396
+SeasonalNaive        lumpy 239 1.025938 0.999044     0.939779
+SeasonalNaive       smooth 120 0.533020 1.023673     1.926488
+          TSB      erratic  45 0.620057 0.682523     1.516432
+          TSB intermittent 419 0.708209 0.930448     0.571693
+          TSB        lumpy 239 0.878478 0.857935     0.804703
+          TSB       smooth 120 0.447385 0.827506     1.616977
+WindowAverage      erratic  45 0.615887 0.687812     1.506236
+WindowAverage intermittent 419 0.704107 0.927612     0.568381
+WindowAverage        lumpy 239 0.871994 0.852589     0.798763
+WindowAverage       smooth 120 0.449919 0.828725     1.626137
+
+SPEED
+        model  group   n     wape     mase  pinball_q50
+   CrostonSBA   fast 326 0.608289 0.891527     1.574467
+   CrostonSBA medium 321 0.911789 0.950906     0.589041
+   CrostonSBA   slow 176 1.198874 1.084568     0.338886
+SeasonalNaive   fast 326 0.639007 0.951502     1.653977
+SeasonalNaive medium 321 1.028416 1.067899     0.664386
+SeasonalNaive   slow 176 1.246231 1.150070     0.352273
+          TSB   fast 326 0.545813 0.793290     1.412758
+          TSB medium 321 0.859978 0.898494     0.555570
+          TSB   slow 176 1.110409 1.010735     0.313880
+WindowAverage   fast 326 0.542767 0.787179     1.404873
+WindowAverage medium 321 0.862199 0.900395     0.557005
+WindowAverage   slow 176 1.109271 1.006759     0.313558
+
+DEMAND_TYPE_X_SPEED
+        model               group   n     wape     mase  pinball_q50
+   CrostonSBA        erratic_fast  45 0.675260 0.714899     1.651439
+   CrostonSBA   intermittent_fast  74 0.704773 1.124481     1.606998
+   CrostonSBA intermittent_medium 203 0.855700 0.928761     0.550921
+   CrostonSBA   intermittent_slow 142 1.171412 1.065095     0.320105
+   CrostonSBA          lumpy_fast  89 0.897016 0.825616     1.348224
+   CrostonSBA        lumpy_medium 116 1.026384 0.993430     0.656658
+   CrostonSBA          lumpy_slow  34 1.296225 1.165895     0.417324
+   CrostonSBA         smooth_fast 118 0.463888 0.862509     1.695353
+   CrostonSBA       smooth_medium   2 0.435363 0.732195     0.536430
+SeasonalNaive        erratic_fast  45 0.741035 0.842164     1.812302
+SeasonalNaive   intermittent_fast  74 0.589798 1.012360     1.344836
+SeasonalNaive intermittent_medium 203 0.982785 1.059539     0.632741
+SeasonalNaive   intermittent_slow 142 1.266912 1.168217     0.346202
+SeasonalNaive          lumpy_fast  89 0.961020 0.862008     1.444422
+SeasonalNaive        lumpy_medium 116 1.121270 1.082131     0.717365
+SeasonalNaive          lumpy_slow  34 1.172920 1.074280     0.377626
+SeasonalNaive         smooth_fast 118 0.532340 1.022534     1.945521
+SeasonalNaive       smooth_medium   2 0.652174 1.090917     0.803571
+          TSB        erratic_fast  45 0.620057 0.682523     1.516432
+          TSB   intermittent_fast  74 0.524449 0.867264     1.195831
+          TSB intermittent_medium 203 0.825796 0.895337     0.531668
+          TSB   intermittent_slow 142 1.111213 1.013569     0.303655
+          TSB          lumpy_fast  89 0.828690 0.740114     1.245529
+          TSB        lumpy_medium 116 0.934430 0.907015     0.597828
+          TSB          lumpy_slow  34 1.107559 0.998900     0.356583
+          TSB         smooth_fast 118 0.447481 0.829248     1.635390
+          TSB       smooth_medium   2 0.430650 0.724766     0.530622
+WindowAverage        erratic_fast  45 0.615887 0.687812     1.506236
+WindowAverage   intermittent_fast  74 0.514695 0.854649     1.173590
+WindowAverage intermittent_medium 203 0.829173 0.898806     0.533842
+WindowAverage   intermittent_slow 142 1.106502 1.006816     0.302368
+WindowAverage          lumpy_fast  89 0.817305 0.724515     1.228417
+WindowAverage        lumpy_medium 116 0.934123 0.905735     0.597632
+WindowAverage          lumpy_slow  34 1.119086 1.006521     0.360294
+WindowAverage         smooth_fast 118 0.449932 0.830026     1.644349
+WindowAverage       smooth_medium   2 0.447723 0.752005     0.551658

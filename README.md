@@ -79,3 +79,6 @@ Seed (42) và mọi tham số (lưới phân vị, lead time, chi phí, lưới 
 - Lưu ý GĐ7: mô phỏng làm tròn phân vị LGBM-Q về số nguyên gần nhất (NB giữ nguyên; chính sách điểm vẫn ceil); lưới kappa {0.25…2.0}; chính sách theo nhóm tốc độ không tốt hơn chính sách chung ở L=3 (xem `07_sua_loi.md`). Số liệu trước GĐ7: `archive/pre_gd7/`.
 - Lưu ý GĐ6: kết luận "phân vị tốt hơn điểm" chỉ đúng so với điểm THUẦN; so với điểm có hệ số an toàn chỉ còn hơn ở tỷ lệ chi phí cao; biến ngoại sinh giá/SNAP/sự kiện đóng góp ≤ 1% pinball (xem `06_bo_sung.md`).
 - Pipeline cũ (`forecast_prob.rolling_origin_eval`, `export_validation_outputs`) chỉ giữ để tham chiếu, không dùng cho kết quả chính thức.
+
+## Chỉ mục kết quả
+Bảng chỉ mục các file trong `results/` (file nào do lệnh nào tạo, file đóng băng): xem [`results/README.md`](results/README.md).

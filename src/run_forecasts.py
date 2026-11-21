@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 
 from src import ml_models as ml
-from src.prob_models import (CONFIG, QGRID, Panel, avg_pinball, estimate_alpha, evaluate_forecast, load_panel, nb_quantiles,
+from src.prob_models import (CONFIG, EXT_QGRID, QGRID, Panel, avg_pinball, estimate_alpha, evaluate_forecast, load_panel, nb_quantiles,
                              origins_for_split, stat_forecast, window_targets)
 from src.tuning import horizons, tune_stat_model
 from src.utils import ROOT
@@ -38,7 +38,7 @@ def _poisson_nb_forecast(panel: Panel, H: int, origins: np.ndarray, models: dict
     M[:, hist_org] = pred
     alpha = estimate_alpha(panel.Y, M, H, origins, panel.group_ds, n_hist, w_series, kappa)
     mean = pred[:, np.searchsorted(hist_org, origins)]
-    return {"mean": mean, "alpha": alpha, "Q": nb_quantiles(mean, alpha, QGRID)}
+    return {"mean": mean, "alpha": alpha, "Q": nb_quantiles(mean, alpha, QGRID), "Qext": nb_quantiles(mean, alpha, EXT_QGRID)}
 
 
 def run(split: str) -> None:
@@ -68,7 +68,7 @@ def run(split: str) -> None:
         t0 = time.time()
         X, y, org_row, names = ml.make_training_set(panel, H, last_label_day, effect_end)
         print(f"[{split}] H={H}: train rows={len(y)}, features={len(names)}", flush=True)
-        lgb_models[H] = ml.fit_lgbm(X, y)
+        lgb_models[H] = ml.fit_lgbm(X, y, extra_q=EXT_QGRID)
         timing[f"LGBM_fit_H{H}"] = time.time() - t0
         print(f"[{split}] LightGBM H={H} xong ({timing[f'LGBM_fit_H{H}']:.1f}s)", flush=True)
         t0 = time.time()
@@ -120,7 +120,9 @@ def run(split: str) -> None:
         for H in Hs:
             arrays[f"{m}|H{H}|Q"] = forecasts[m][H]["Q"]
             arrays[f"{m}|H{H}|mean"] = forecasts[m][H]["mean"]
+            arrays[f"{m}|H{H}|Qext"] = forecasts[m][H]["Qext"]
     arrays["quantile_grid"] = np.array(QGRID)
+    arrays["quantile_grid_ext"] = np.array(EXT_QGRID)
     np.savez_compressed(ROOT / "results" / "forecasts" / f"{split}.npz", **arrays)
     if split == "val":
         HPARAMS_PATH.write_text(json.dumps({**hp, "_meta": {"seed": CONFIG["seed"], "horizons": Hs, "quantile_grid": QGRID,

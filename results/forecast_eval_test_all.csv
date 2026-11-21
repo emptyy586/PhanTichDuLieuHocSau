@@ -4833,7 +4833,7 @@ LGBM-Q,4,speed,medium,coverage,0.99,0.9895327102803738
 LGBM-Q,4,speed,medium,coverage_lt,0.99,0.9895327102803738
 LGBM-Q,4,speed,medium,pinball_avg,,0.7232066496874653
 LGBM-Q,4,speed,medium,wape,,0.4608934603448172
-LGBM-Q,4,speed,medium,mase,,0.8264699046478425
+LGBM-Q,4,speed,medium,mase,,0.8264699046478428
 LGBM-Q,4,speed,medium,n_series,,321.0
 LGBM-Q,4,speed,slow,pinball,0.5,0.7247161646535347
 LGBM-Q,4,speed,slow,coverage,0.5,0.5322727272727272
@@ -4863,7 +4863,7 @@ LGBM-Q,4,speed,slow,pinball,0.99,0.09290792936234302
 LGBM-Q,4,speed,slow,coverage,0.99,0.9845454545454545
 LGBM-Q,4,speed,slow,coverage_lt,0.99,0.9845454545454545
 LGBM-Q,4,speed,slow,pinball_avg,,0.4829599369276853
-LGBM-Q,4,speed,slow,wape,,0.6636787230896593
+LGBM-Q,4,speed,slow,wape,,0.6636787230896591
 LGBM-Q,4,speed,slow,mase,,0.960134625737993
 LGBM-Q,4,speed,slow,n_series,,176.0
 LGBM-Q,4,demand_type,erratic,pinball,0.5,3.754132542146695
@@ -4926,7 +4926,7 @@ LGBM-Q,4,demand_type,intermittent,coverage,0.99,0.9882577565632458
 LGBM-Q,4,demand_type,intermittent,coverage_lt,0.99,0.9882577565632458
 LGBM-Q,4,demand_type,intermittent,pinball_avg,,0.7759413947264104
 LGBM-Q,4,demand_type,intermittent,wape,,0.37881789552526635
-LGBM-Q,4,demand_type,intermittent,mase,,0.8570213744910073
+LGBM-Q,4,demand_type,intermittent,mase,,0.8570213744910076
 LGBM-Q,4,demand_type,intermittent,n_series,,419.0
 LGBM-Q,4,demand_type,lumpy,pinball,0.5,1.7821340235249297
 LGBM-Q,4,demand_type,lumpy,coverage,0.5,0.4994142259414226
@@ -5050,7 +5050,7 @@ LGBM-Q,4,demand_type_x_speed,intermittent_fast,coverage,0.99,0.985945945945946
 LGBM-Q,4,demand_type_x_speed,intermittent_fast,coverage_lt,0.99,0.985945945945946
 LGBM-Q,4,demand_type_x_speed,intermittent_fast,pinball_avg,,1.7388685995788506
 LGBM-Q,4,demand_type_x_speed,intermittent_fast,wape,,0.27553724671002305
-LGBM-Q,4,demand_type_x_speed,intermittent_fast,mase,,0.8043722129765658
+LGBM-Q,4,demand_type_x_speed,intermittent_fast,mase,,0.8043722129765659
 LGBM-Q,4,demand_type_x_speed,intermittent_fast,n_series,,74.0
 LGBM-Q,4,demand_type_x_speed,intermittent_medium,pinball,0.5,1.1236281535182013
 LGBM-Q,4,demand_type_x_speed,intermittent_medium,coverage,0.5,0.5099507389162562
@@ -5143,7 +5143,7 @@ LGBM-Q,4,demand_type_x_speed,lumpy_fast,coverage,0.99,0.9892134831460674
 LGBM-Q,4,demand_type_x_speed,lumpy_fast,coverage_lt,0.99,0.9892134831460674
 LGBM-Q,4,demand_type_x_speed,lumpy_fast,pinball_avg,,1.742413006802689
 LGBM-Q,4,demand_type_x_speed,lumpy_fast,wape,,0.36403783892140845
-LGBM-Q,4,demand_type_x_speed,lumpy_fast,mase,,0.6546900555766424
+LGBM-Q,4,demand_type_x_speed,lumpy_fast,mase,,0.6546900555766425
 LGBM-Q,4,demand_type_x_speed,lumpy_fast,n_series,,89.0
 LGBM-Q,4,demand_type_x_speed,lumpy_medium,pinball,0.5,1.2766006390239122
 LGBM-Q,4,demand_type_x_speed,lumpy_medium,coverage,0.5,0.506896551724138
@@ -5266,8 +5266,8 @@ LGBM-Q,4,demand_type_x_speed,smooth_medium,pinball,0.99,0.09278149838058988
 LGBM-Q,4,demand_type_x_speed,smooth_medium,coverage,0.99,1.0
 LGBM-Q,4,demand_type_x_speed,smooth_medium,coverage_lt,0.99,1.0
 LGBM-Q,4,demand_type_x_speed,smooth_medium,pinball_avg,,0.7088878140283522
-LGBM-Q,4,demand_type_x_speed,smooth_medium,wape,,0.31960871715091144
-LGBM-Q,4,demand_type_x_speed,smooth_medium,mase,,0.668417180571776
+LGBM-Q,4,demand_type_x_speed,smooth_medium,wape,,0.31960871715091127
+LGBM-Q,4,demand_type_x_speed,smooth_medium,mase,,0.6684171805717758
 LGBM-Q,4,demand_type_x_speed,smooth_medium,n_series,,2.0
 LGBM-PoisNB,3,overall,overall,pinball,0.5,1.4963547995139732
 LGBM-PoisNB,3,overall,overall,coverage,0.5,0.5892606785680905
@@ -5887,7 +5887,7 @@ LGBM-PoisNB,4,speed,medium,coverage,0.99,0.9841744548286604
 LGBM-PoisNB,4,speed,medium,coverage_lt,0.99,0.9754517133956386
 LGBM-PoisNB,4,speed,medium,pinball_avg,,0.7349955694011768
 LGBM-PoisNB,4,speed,medium,wape,,0.4608934603448172
-LGBM-PoisNB,4,speed,medium,mase,,0.8264699046478425
+LGBM-PoisNB,4,speed,medium,mase,,0.8264699046478428
 LGBM-PoisNB,4,speed,medium,n_series,,321.0
 LGBM-PoisNB,4,speed,slow,pinball,0.5,0.7168181818181818
 LGBM-PoisNB,4,speed,slow,coverage,0.5,0.6497727272727273
@@ -5917,7 +5917,7 @@ LGBM-PoisNB,4,speed,slow,pinball,0.99,0.09714545454545459
 LGBM-PoisNB,4,speed,slow,coverage,0.99,0.9845454545454545
 LGBM-PoisNB,4,speed,slow,coverage_lt,0.99,0.975
 LGBM-PoisNB,4,speed,slow,pinball_avg,,0.47995871212121205
-LGBM-PoisNB,4,speed,slow,wape,,0.6636787230896593
+LGBM-PoisNB,4,speed,slow,wape,,0.6636787230896591
 LGBM-PoisNB,4,speed,slow,mase,,0.960134625737993
 LGBM-PoisNB,4,speed,slow,n_series,,176.0
 LGBM-PoisNB,4,demand_type,erratic,pinball,0.5,3.8106666666666666
@@ -5980,7 +5980,7 @@ LGBM-PoisNB,4,demand_type,intermittent,coverage,0.99,0.9856801909307876
 LGBM-PoisNB,4,demand_type,intermittent,coverage_lt,0.99,0.9778520286396182
 LGBM-PoisNB,4,demand_type,intermittent,pinball_avg,,0.7998937682312386
 LGBM-PoisNB,4,demand_type,intermittent,wape,,0.37881789552526635
-LGBM-PoisNB,4,demand_type,intermittent,mase,,0.8570213744910073
+LGBM-PoisNB,4,demand_type,intermittent,mase,,0.8570213744910076
 LGBM-PoisNB,4,demand_type,intermittent,n_series,,419.0
 LGBM-PoisNB,4,demand_type,lumpy,pinball,0.5,1.7905439330543933
 LGBM-PoisNB,4,demand_type,lumpy,coverage,0.5,0.5521338912133891
@@ -6104,7 +6104,7 @@ LGBM-PoisNB,4,demand_type_x_speed,intermittent_fast,coverage,0.99,0.977297297297
 LGBM-PoisNB,4,demand_type_x_speed,intermittent_fast,coverage_lt,0.99,0.9745945945945946
 LGBM-PoisNB,4,demand_type_x_speed,intermittent_fast,pinball_avg,,1.8566765765765767
 LGBM-PoisNB,4,demand_type_x_speed,intermittent_fast,wape,,0.27553724671002305
-LGBM-PoisNB,4,demand_type_x_speed,intermittent_fast,mase,,0.8043722129765658
+LGBM-PoisNB,4,demand_type_x_speed,intermittent_fast,mase,,0.8043722129765659
 LGBM-PoisNB,4,demand_type_x_speed,intermittent_fast,n_series,,74.0
 LGBM-PoisNB,4,demand_type_x_speed,intermittent_medium,pinball,0.5,1.1288669950738917
 LGBM-PoisNB,4,demand_type_x_speed,intermittent_medium,coverage,0.5,0.5761576354679803
@@ -6197,7 +6197,7 @@ LGBM-PoisNB,4,demand_type_x_speed,lumpy_fast,coverage,0.99,0.9761797752808988
 LGBM-PoisNB,4,demand_type_x_speed,lumpy_fast,coverage_lt,0.99,0.9721348314606741
 LGBM-PoisNB,4,demand_type_x_speed,lumpy_fast,pinball_avg,,1.74085468164794
 LGBM-PoisNB,4,demand_type_x_speed,lumpy_fast,wape,,0.36403783892140845
-LGBM-PoisNB,4,demand_type_x_speed,lumpy_fast,mase,,0.6546900555766424
+LGBM-PoisNB,4,demand_type_x_speed,lumpy_fast,mase,,0.6546900555766425
 LGBM-PoisNB,4,demand_type_x_speed,lumpy_fast,n_series,,89.0
 LGBM-PoisNB,4,demand_type_x_speed,lumpy_medium,pinball,0.5,1.3024137931034483
 LGBM-PoisNB,4,demand_type_x_speed,lumpy_medium,coverage,0.5,0.5710344827586207
@@ -6320,8 +6320,8 @@ LGBM-PoisNB,4,demand_type_x_speed,smooth_medium,pinball,0.99,0.09880000000000008
 LGBM-PoisNB,4,demand_type_x_speed,smooth_medium,coverage,0.99,1.0
 LGBM-PoisNB,4,demand_type_x_speed,smooth_medium,coverage_lt,0.99,1.0
 LGBM-PoisNB,4,demand_type_x_speed,smooth_medium,pinball_avg,,0.6713666666666667
-LGBM-PoisNB,4,demand_type_x_speed,smooth_medium,wape,,0.31960871715091144
-LGBM-PoisNB,4,demand_type_x_speed,smooth_medium,mase,,0.668417180571776
+LGBM-PoisNB,4,demand_type_x_speed,smooth_medium,wape,,0.31960871715091127
+LGBM-PoisNB,4,demand_type_x_speed,smooth_medium,mase,,0.6684171805717758
 LGBM-PoisNB,4,demand_type_x_speed,smooth_medium,n_series,,2.0
 MLP-NB,3,overall,overall,pinball,0.5,1.4721469296195906
 MLP-NB,3,overall,overall,coverage,0.5,0.6004299467239929

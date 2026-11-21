@@ -144,7 +144,7 @@ Coverage tổng thể, H=4:
 | LGBM-PoisNB | 0.5765 | 0.6590 | 0.7436 | 0.8268 | 0.8676 | 0.9055 | 0.9458 | 0.9668 | 0.9800 |
 | MLP-NB | 0.5939 | 0.6699 | 0.7472 | 0.8239 | 0.8631 | 0.9032 | 0.9455 | 0.9676 | 0.9840 |
 
-Pinball_avg theo speed (H=3):
+Pinball_avg theo speed (H=3) [đánh giá dự báo cửa sổ H=3; không phụ thuộc tỷ lệ chi phí, L, q; pinball_avg = trung bình 9 mức q]:
 | model | fast | medium | slow |
 |---|---|---|---|
 | WindowAverage | 1.8014 | 0.7119 | 0.3950 |
@@ -155,7 +155,7 @@ Pinball_avg theo speed (H=3):
 | LGBM-PoisNB | 1.5303 | 0.6310 | 0.3642 |
 | MLP-NB | 1.4806 | 0.6143 | 0.3574 |
 
-WAPE theo speed (H=3):
+WAPE theo speed (H=3) [đánh giá dự báo cửa sổ H=3; không phụ thuộc tỷ lệ chi phí, L, q; pinball_avg = trung bình 9 mức q]:
 | model | fast | medium | slow |
 |---|---|---|---|
 | WindowAverage | 0.3616 | 0.5519 | 0.7006 |
@@ -166,7 +166,7 @@ WAPE theo speed (H=3):
 | LGBM-PoisNB | 0.3123 | 0.5220 | 0.7039 |
 | MLP-NB | 0.3150 | 0.5169 | 0.6888 |
 
-MASE theo speed (H=3):
+MASE theo speed (H=3) [đánh giá dự báo cửa sổ H=3; không phụ thuộc tỷ lệ chi phí, L, q; pinball_avg = trung bình 9 mức q]:
 | model | fast | medium | slow |
 |---|---|---|---|
 | WindowAverage | 0.7248 | 0.8570 | 0.8938 |
@@ -177,7 +177,7 @@ MASE theo speed (H=3):
 | LGBM-PoisNB | 0.6479 | 0.8114 | 0.9074 |
 | MLP-NB | 0.6495 | 0.8033 | 0.8844 |
 
-Pinball_avg theo demand_type (H=3):
+Pinball_avg theo demand_type (H=3) [đánh giá dự báo cửa sổ H=3; không phụ thuộc tỷ lệ chi phí, L, q; pinball_avg = trung bình 9 mức q]:
 | model | erratic | intermittent | lumpy | smooth |
 |---|---|---|---|---|
 | WindowAverage | 1.9778 | 0.7092 | 1.0450 | 2.0781 |
@@ -188,7 +188,7 @@ Pinball_avg theo demand_type (H=3):
 | LGBM-PoisNB | 1.5735 | 0.6154 | 0.9183 | 1.8118 |
 | MLP-NB | 1.4720 | 0.6023 | 0.8802 | 1.7818 |
 
-WAPE theo demand_type (H=3):
+WAPE theo demand_type (H=3) [đánh giá dự báo cửa sổ H=3; không phụ thuộc tỷ lệ chi phí, L, q; pinball_avg = trung bình 9 mức q]:
 | model | erratic | intermittent | lumpy | smooth |
 |---|---|---|---|---|
 | WindowAverage | 0.4131 | 0.4491 | 0.5635 | 0.3083 |
@@ -199,7 +199,7 @@ WAPE theo demand_type (H=3):
 | LGBM-PoisNB | 0.3341 | 0.4139 | 0.5191 | 0.2684 |
 | MLP-NB | 0.3321 | 0.4113 | 0.5176 | 0.2727 |
 
-Pinball_avg theo demand_type×speed (H=3):
+Pinball_avg theo demand_type×speed (H=3) [đánh giá dự báo cửa sổ H=3; không phụ thuộc tỷ lệ chi phí, L, q; pinball_avg = trung bình 9 mức q]:
 | model | erratic_fast | intermittent_fast | intermittent_medium | intermittent_slow | lumpy_fast | lumpy_medium | lumpy_slow | smooth_fast | smooth_medium |
 |---|---|---|---|---|---|---|---|---|---|
 | WindowAverage | 1.9778 | 1.4916 | 0.6636 | 0.3668 | 1.5703 | 0.7981 | 0.5125 | 2.1028 | 0.6180 |

@@ -117,21 +117,21 @@ Mô hình có chi phí thấp nhất tại q* theo từng tỷ lệ (tổng th�
 (Quy tắc newsvendor ratio/(1+ratio) làm tròn lên lưới q: 1→0.5, 2→0.7, 5→0.85, 10→0.9, 20→0.95, 50→0.975.)
 
 ### 3.2 q* theo nhóm (L=2)
-MLP-NB theo speed:
+MLP-NB theo speed [q* của MLP-NB, L=2; cột = tỷ lệ chi phí thiếu/giữ]:
 | group | 1.0 | 2.0 | 5.0 | 10.0 | 20.0 | 50.0 |
 |---|---|---|---|---|---|---|
 | fast | 0.5000 | 0.5000 | 0.5000 | 0.8000 | 0.9000 | 0.9500 |
 | medium | 0.5000 | 0.5000 | 0.5000 | 0.8000 | 0.9000 | 0.9750 |
 | slow | 0.5000 | 0.5000 | 0.5000 | 0.8000 | 0.9000 | 0.9500 |
 
-TSB theo speed:
+TSB theo speed [q* của TSB, L=2; cột = tỷ lệ chi phí thiếu/giữ]:
 | group | 1.0 | 2.0 | 5.0 | 10.0 | 20.0 | 50.0 |
 |---|---|---|---|---|---|---|
 | fast | 0.5000 | 0.5000 | 0.6000 | 0.8000 | 0.9000 | 0.9750 |
 | medium | 0.5000 | 0.5000 | 0.5000 | 0.8000 | 0.9000 | 0.9750 |
 | slow | 0.5000 | 0.5000 | 0.5000 | 0.8000 | 0.9000 | 0.9500 |
 
-MLP-NB theo demand_type:
+MLP-NB theo demand_type [q* của MLP-NB, L=2; cột = tỷ lệ chi phí thiếu/giữ]:
 | group | 1.0 | 2.0 | 5.0 | 10.0 | 20.0 | 50.0 |
 |---|---|---|---|---|---|---|
 | erratic | 0.5000 | 0.5000 | 0.5000 | 0.8000 | 0.9000 | 0.9750 |
@@ -139,7 +139,7 @@ MLP-NB theo demand_type:
 | lumpy | 0.5000 | 0.5000 | 0.5000 | 0.7000 | 0.9000 | 0.9500 |
 | smooth | 0.5000 | 0.5000 | 0.5000 | 0.8000 | 0.9000 | 0.9750 |
 
-Sai số dự báo theo nhóm (GĐ2, H=3): pinball_avg theo speed:
+Sai số dự báo theo nhóm (GĐ2, H=3; không phụ thuộc tỷ lệ chi phí/L/q): pinball_avg (trung bình 9 mức q) theo speed:
 | model | fast | medium | slow |
 |---|---|---|---|
 | WindowAverage | 1.8014 | 0.7119 | 0.3950 |
@@ -150,7 +150,7 @@ Sai số dự báo theo nhóm (GĐ2, H=3): pinball_avg theo speed:
 | LGBM-PoisNB | 1.5303 | 0.6310 | 0.3642 |
 | MLP-NB | 1.4806 | 0.6143 | 0.3574 |
 
-WAPE theo speed:
+WAPE theo speed (H=3; không phụ thuộc tỷ lệ chi phí/L/q):
 | model | fast | medium | slow |
 |---|---|---|---|
 | WindowAverage | 0.3616 | 0.5519 | 0.7006 |
@@ -161,7 +161,7 @@ WAPE theo speed:
 | LGBM-PoisNB | 0.3123 | 0.5220 | 0.7039 |
 | MLP-NB | 0.3150 | 0.5169 | 0.6888 |
 
-WAPE theo demand_type:
+WAPE theo demand_type (H=3; không phụ thuộc tỷ lệ chi phí/L/q):
 | model | erratic | intermittent | lumpy | smooth |
 |---|---|---|---|---|
 | WindowAverage | 0.4131 | 0.4491 | 0.5635 | 0.3083 |
@@ -175,7 +175,7 @@ WAPE theo demand_type:
 
 ### 3.3 Bảng chính sách bổ sung đề xuất (cost_ratio=10, chọn (mô hình, q) tối thiểu hóa tổng chi phí trên val; nhóm <30 chuỗi dùng chính sách của nhóm speed)
 Các giá trị fill rate/chi phí là KỲ VỌNG TRÊN VAL (chọn và đánh giá cùng một tập ⇒ lạc quan); GĐ5 đánh giá lại trên test. Chi phí = TB/chuỗi trong 28 ngày, đơn vị tương đối.
-L=2:
+L=2 [cost_ratio=10; q = cột q_star của từng dòng]:
 | group | n_series_group | model | q_star | fill_rate | stockout_days | avg_inventory | total_cost | ghi_chu |
 |---|---|---|---|---|---|---|---|---|
 | erratic_fast | 45 | LGBM-Q | 0.7000 | 0.8629 | 4.1556 | 10.2444 | 474.6222 |  |
@@ -188,7 +188,7 @@ L=2:
 | smooth_fast | 118 | MLP-NB | 0.8000 | 0.9388 | 2.9068 | 14.7022 | 537.0000 |  |
 | smooth_medium | 2 | MLP-NB | 0.8000 | 0.8568 | 2.5607 | 3.6943 | 155.2461 | dùng nhóm speed=medium |
 
-L=3:
+L=3 [cost_ratio=10; q = cột q_star của từng dòng]:
 | group | n_series_group | model | q_star | fill_rate | stockout_days | avg_inventory | total_cost | ghi_chu |
 |---|---|---|---|---|---|---|---|---|
 | erratic_fast | 45 | LGBM-Q | 0.7000 | 0.8593 | 4.3778 | 11.7952 | 522.9333 |  |
@@ -221,7 +221,7 @@ Mọi KTC 95% dưới đây là bootstrap theo chuỗi trên validation (đơn v
 | MLP-NB | -15.97 [-16.63; -15.35] | 12.75 [10.98; 14.80] | 28.50 [25.21; 32.24] | 2.76 [-2.09; 7.59] | -72.96 [-85.03; -60.36] | -395.32 [-434.49; -355.23] |
 
   Tỷ lệ 2 (q=0.7): phân vị đắt hơn điểm ở mọi mô hình (KTC không chứa 0). Tỷ lệ 10 (q=0.9): hỗn hợp – CrostonSBA/TSB rẻ hơn rõ (KTC âm), WindowAverage biên (KTC chứa 0 sát biên), LGBM-PoisNB và MLP-NB không khác biệt (KTC chứa 0), LGBM-Q và SeasonalNaive đắt hơn. Tỷ lệ 50 (q=0.975): phân vị rẻ hơn rất nhiều ở mọi mô hình (−395…−620).
-  Tách theo speed (tỷ lệ 10, q=0.9):
+  Tách theo speed (tỷ lệ chi phí 10, L=2, q=0.9 = q newsvendor; hiệu chi phí phân vị − điểm):
 | model | fast | medium | slow |
 |---|---|---|---|
 | WindowAverage | -16.23 [-31.08; -1.40] | -0.11 [-4.46; 4.13] | 3.67 [0.34; 7.16] |
@@ -287,3 +287,6 @@ Seed 42 (bootstrap `default_rng(42)`, 2000 lần). cost_ratios [1,2,5,10,20,50],
 
 ## 8. Chưa làm
 Đánh giá trên test, so sánh val–test (GĐ5). Không làm lưới q mở rộng xuống <0.5 (sẽ cần chạy lại GĐ2–3).
+
+
+> **Cập nhật GĐ6**: kết luận câu 1 và giải thích câu 3 (biến ngoại sinh) ở báo cáo này đã được sửa bởi `06_bo_sung.md` (so với điểm có hệ số an toàn; ablation ngoại sinh). q*=0.5 ở tỷ lệ ≤5 là cận lưới – xem lưới mở rộng ở 06.

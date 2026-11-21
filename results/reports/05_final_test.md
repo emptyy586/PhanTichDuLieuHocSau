@@ -20,44 +20,51 @@ cachedir: .pytest_cache
 Fugue tests will be initialized with options:
 rootdir: D:\lt\261\PTDLHS\DA
 plugins: anyio-4.15.1, fugue-0.9.7, platformdirs-4.14.0
-collecting ... collected 34 items
+collecting ... collected 41 items
 
 tests/test_eda.py::test_load_train_excludes_val PASSED                   [  2%]
-tests/test_eda.py::test_active_rows_drops_pre_launch_days PASSED         [  5%]
-tests/test_eda.py::test_weekday_table_has_seven_rows_and_mean_two PASSED [  8%]
-tests/test_eda.py::test_demand_speed_table_totals PASSED                 [ 11%]
-tests/test_final_eval.py::test_group_policy_levels_follow_group_choice PASSED [ 14%]
-tests/test_final_eval.py::test_case_levels_point_and_quantile PASSED     [ 17%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_daily_target_date_tracks_horizon_offset PASSED [ 20%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_evaluate_validation_summary_matches_by_date_and_id PASSED [ 23%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_join_rows_do_not_duplicate PASSED [ 26%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_n_samples_changes_quantile_output PASSED [ 29%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_pinball_known_answer PASSED [ 32%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_poisson_distribution_scaling PASSED [ 35%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_sample_total_window_does_not_blow_up_for_zero_mean PASSED [ 38%]
-tests/test_inventory_sim.py::test_constant_demand_matches_hand_calculation PASSED [ 41%]
-tests/test_inventory_sim.py::test_inventory_conservation_every_day PASSED [ 44%]
-tests/test_inventory_sim.py::test_costs_nonnegative_and_fill_rate_range_and_monotone_in_level PASSED [ 47%]
-tests/test_inventory_sim.py::test_reproducible_same_inputs PASSED        [ 50%]
-tests/test_outputs.py::test_val_npz_shapes_cover_all_series_and_origins_and_monotone PASSED [ 52%]
-tests/test_outputs.py::test_val_eval_csv_schema_and_coverage_matches_npz PASSED [ 55%]
-tests/test_outputs.py::test_actual_in_npz_equals_window_sum_of_val_demand PASSED [ 58%]
-tests/test_outputs.py::test_md_table_rounds_to_four_decimals PASSED      [ 61%]
-tests/test_outputs.py::test_test_npz_origins_inside_test_split_and_shapes PASSED [ 64%]
-tests/test_prob_models.py::test_pinball_known_answer PASSED              [ 67%]
-tests/test_prob_models.py::test_nb_quantiles_match_scipy_and_cdf_definition PASSED [ 70%]
-tests/test_prob_models.py::test_nb_quantiles_monotone_in_q_and_zero_mean PASSED [ 73%]
-tests/test_prob_models.py::test_legacy_sampler_mean_not_inflated_when_n_below_one PASSED [ 76%]
-tests/test_prob_models.py::test_window_targets_values_and_nan_tail PASSED [ 79%]
-tests/test_prob_models.py::test_origins_window_inside_split PASSED       [ 82%]
-tests/test_prob_models.py::test_croston_tsb_constant_demand PASSED       [ 85%]
-tests/test_prob_models.py::test_no_leak_stat_forecast_and_alpha PASSED   [ 88%]
-tests/test_prob_models.py::test_no_leak_features PASSED                  [ 91%]
-tests/test_prob_models.py::test_estimate_alpha_known_poisson_is_small PASSED [ 94%]
+tests/test_eda.py::test_active_rows_drops_pre_launch_days PASSED         [  4%]
+tests/test_eda.py::test_weekday_table_has_seven_rows_and_mean_two PASSED [  7%]
+tests/test_eda.py::test_demand_speed_table_totals PASSED                 [  9%]
+tests/test_final_eval.py::test_group_policy_levels_follow_group_choice PASSED [ 12%]
+tests/test_final_eval.py::test_case_levels_point_and_quantile PASSED     [ 14%]
+tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_daily_target_date_tracks_horizon_offset PASSED [ 17%]
+tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_evaluate_validation_summary_matches_by_date_and_id PASSED [ 19%]
+tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_join_rows_do_not_duplicate PASSED [ 21%]
+tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_n_samples_changes_quantile_output PASSED [ 24%]
+tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_pinball_known_answer PASSED [ 26%]
+tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_poisson_distribution_scaling PASSED [ 29%]
+tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_sample_total_window_does_not_blow_up_for_zero_mean PASSED [ 31%]
+tests/test_gd6.py::test_k_grid_is_0p5_to_3p0_step_0p1 PASSED             [ 34%]
+tests/test_gd6.py::test_series_cost_matches_hold_plus_ratio_times_lost PASSED [ 36%]
+tests/test_gd6.py::test_mase_scale_uses_train_only_and_equals_hand_calculation PASSED [ 39%]
+tests/test_gd6.py::test_ext_quantiles_below_main_grid_and_monotone PASSED [ 41%]
+tests/test_gd6.py::test_lgbm_ext_quantiles_not_above_first_main_quantile PASSED [ 43%]
+tests/test_gd6.py::test_exog_mask_drops_only_price_snap_event_columns PASSED [ 46%]
+tests/test_gd6.py::test_mlp_seed_changes_weights_but_same_seed_reproduces PASSED [ 48%]
+tests/test_inventory_sim.py::test_constant_demand_matches_hand_calculation PASSED [ 51%]
+tests/test_inventory_sim.py::test_inventory_conservation_every_day PASSED [ 53%]
+tests/test_inventory_sim.py::test_costs_nonnegative_and_fill_rate_range_and_monotone_in_level PASSED [ 56%]
+tests/test_inventory_sim.py::test_reproducible_same_inputs PASSED        [ 58%]
+tests/test_outputs.py::test_val_npz_shapes_cover_all_series_and_origins_and_monotone PASSED [ 60%]
+tests/test_outputs.py::test_val_eval_csv_schema_and_coverage_matches_npz PASSED [ 63%]
+tests/test_outputs.py::test_actual_in_npz_equals_window_sum_of_val_demand PASSED [ 65%]
+tests/test_outputs.py::test_md_table_rounds_to_four_decimals PASSED      [ 68%]
+tests/test_outputs.py::test_test_npz_origins_inside_test_split_and_shapes PASSED [ 70%]
+tests/test_prob_models.py::test_pinball_known_answer PASSED              [ 73%]
+tests/test_prob_models.py::test_nb_quantiles_match_scipy_and_cdf_definition PASSED [ 75%]
+tests/test_prob_models.py::test_nb_quantiles_monotone_in_q_and_zero_mean PASSED [ 78%]
+tests/test_prob_models.py::test_legacy_sampler_mean_not_inflated_when_n_below_one PASSED [ 80%]
+tests/test_prob_models.py::test_window_targets_values_and_nan_tail PASSED [ 82%]
+tests/test_prob_models.py::test_origins_window_inside_split PASSED       [ 85%]
+tests/test_prob_models.py::test_croston_tsb_constant_demand PASSED       [ 87%]
+tests/test_prob_models.py::test_no_leak_stat_forecast_and_alpha PASSED   [ 90%]
+tests/test_prob_models.py::test_no_leak_features PASSED                  [ 92%]
+tests/test_prob_models.py::test_estimate_alpha_known_poisson_is_small PASSED [ 95%]
 tests/test_prob_models.py::test_evaluate_forecast_coverage_and_shapes PASSED [ 97%]
 tests/test_prob_models.py::test_lgbm_quantiles_monotone_and_shape PASSED [100%]
 
-============================= 34 passed in 5.56s ==============================
+============================= 41 passed in 7.71s ==============================
 ```
 
 ## 3. Kết quả
@@ -105,7 +112,7 @@ Coverage test mọi q (H=3):
 | LGBM-PoisNB | 0.5893 | 0.6711 | 0.7546 | 0.8386 | 0.8774 | 0.9156 | 0.9517 | 0.9711 | 0.9842 |
 | MLP-NB | 0.6004 | 0.6787 | 0.7571 | 0.8359 | 0.8739 | 0.9105 | 0.9493 | 0.9702 | 0.9834 |
 
-Pinball_avg theo speed, val:
+Pinball_avg theo speed, val [H=3; không phụ thuộc tỷ lệ chi phí/L/q]:
 | model | fast | medium | slow |
 |---|---|---|---|
 | WindowAverage | 1.8014 | 0.7119 | 0.3950 |
@@ -116,7 +123,7 @@ Pinball_avg theo speed, val:
 | LGBM-PoisNB | 1.5303 | 0.6310 | 0.3642 |
 | MLP-NB | 1.4806 | 0.6143 | 0.3574 |
 
-test:
+test [H=3; không phụ thuộc tỷ lệ chi phí/L/q]:
 | model | fast | medium | slow |
 |---|---|---|---|
 | WindowAverage | 1.9478 | 0.6794 | 0.4445 |
@@ -127,7 +134,7 @@ test:
 | LGBM-PoisNB | 1.5661 | 0.6194 | 0.4060 |
 | MLP-NB | 1.5679 | 0.6154 | 0.4050 |
 
-WAPE theo speed, val:
+WAPE theo speed, val [H=3; không phụ thuộc tỷ lệ chi phí/L/q]:
 | model | fast | medium | slow |
 |---|---|---|---|
 | WindowAverage | 0.3616 | 0.5519 | 0.7006 |
@@ -138,7 +145,7 @@ WAPE theo speed, val:
 | LGBM-PoisNB | 0.3123 | 0.5220 | 0.7039 |
 | MLP-NB | 0.3150 | 0.5169 | 0.6888 |
 
-test:
+test [H=3; không phụ thuộc tỷ lệ chi phí/L/q]:
 | model | fast | medium | slow |
 |---|---|---|---|
 | WindowAverage | 0.3460 | 0.5409 | 0.7675 |
@@ -217,7 +224,7 @@ Mô hình có chi phí test thấp nhất tại q*(val) cho mỗi (L, tỷ lệ)
 | 3 | B_toan_cuc (MLP-NB, q=0.7) | test | 0.8633 | 3.4058 | 6.0336 | 168.9417 | 109.6355 | 278.5772 |
 | 3 | C_diem (MLP-NB) | test | 0.8183 | 4.3888 | 5.1852 | 145.1859 | 145.7351 | 290.9210 |
 
-L=2 theo speed:
+L=2 theo speed [cost_ratio=10; A: q* theo bảng chính sách từng nhóm, B: MLP-NB q=0.8, C: điểm MLP-NB]:
 | group | policy | fill_rate_test | fill_rate_val | total_cost_test | total_cost_val |
 |---|---|---|---|---|---|
 | fast | A_theo_nhom | 0.9032 | 0.9118 | 455.5706 | 437.4417 |
@@ -255,7 +262,7 @@ Q1 – chi phí[phân vị q newsvendor] − chi phí[điểm], [KTC 95%], theo 
 | LGBM-PoisNB | -16.39 [-17.04; -15.79] | 13.58 [12.21; 14.99] | 28.94 [25.70; 32.33] | -6.60 [-13.93; -0.50] | -102.11 [-122.20; -85.00] | -486.95 [-551.93; -431.27] |
 | MLP-NB | -15.42 [-15.99; -14.84] | 13.32 [11.76; 15.03] | 27.75 [24.51; 31.16] | -1.00 [-7.58; 4.83] | -84.80 [-102.42; -69.98] | -430.20 [-484.08; -382.71] |
 
-theo speed, cost_ratio=10:
+theo speed [tỷ lệ chi phí 10, L=2, q=0.9 = q newsvendor; hiệu chi phí phân vị − điểm]:
 | model | fast | medium | slow |
 |---|---|---|---|
 | WindowAverage | -45.30 [-65.46; -25.59] | 5.04 [0.34; 9.81] | 11.32 [7.66; 15.33] |
@@ -296,3 +303,6 @@ Seed 42. Thời gian chạy test: tổng 227.9 s (LightGBM fit H=3 44.0 s, H=4 4
 
 ## 7. Chưa làm
 Không có đánh giá lặp theo nhiều giai đoạn (rolling multi-split), không có DeepAR/N-HiTS/TFT/Chronos-2, không có WRMSSE (lý do ở báo cáo 02).
+
+
+> **Cập nhật GĐ6**: kết luận câu 1 (phân vị vs điểm) và lời giải thích câu 3 (biến ngoại sinh) đã được sửa/bổ sung ở `06_bo_sung.md` (điểm có hệ số an toàn, ablation ngoại sinh, 3 seed MLP-NB, lưới q mở rộng, hiệu chuẩn rời rạc).

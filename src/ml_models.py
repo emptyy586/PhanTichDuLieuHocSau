@@ -15,6 +15,7 @@ import pandas as pd
 from src.prob_models import (CONFIG, QGRID, SEED, Panel, croston_sba_level, nb_quantiles, tsb_level, window_targets,
                              window_average_level)
 
+EXT_QGRID = [float(q) for q in CONFIG["quantile_grid_ext"]]
 SPEED_CODE = {"slow": 0, "medium": 1, "fast": 2}
 DTYPE_CODE = {"smooth": 0, "erratic": 1, "intermittent": 2, "lumpy": 3}
 
@@ -141,11 +142,14 @@ def _lgb_params(objective: str, alpha: float | None = None) -> dict:
     return p
 
 
-def fit_lgbm(X: np.ndarray, y: np.ndarray) -> dict:
-    """Huấn luyện LightGBM trực tiếp trên D_H: 1 mô hình / phân vị (objective=quantile) + 1 mô hình Poisson."""
-    models = {"q": {}, "poisson": None}
+def fit_lgbm(X: np.ndarray, y: np.ndarray, extra_q: list[float] | None = None) -> dict:
+    """Huấn luyện LightGBM trực tiếp trên D_H: 1 mô hình / phân vị (objective=quantile) + 1 mô hình Poisson.
+    `extra_q`: các phân vị phụ (lưới mở rộng q<0.5), lưu riêng trong models["q_ext"], không ảnh hưởng kết quả chính."""
+    models = {"q": {}, "q_ext": {}, "poisson": None}
     for q in QGRID:
         models["q"][q] = lgb.LGBMRegressor(**_lgb_params("quantile", q)).fit(X, y)
+    for q in (extra_q or []):
+        models["q_ext"][q] = lgb.LGBMRegressor(**_lgb_params("quantile", q)).fit(X, y)
     models["poisson"] = lgb.LGBMRegressor(**_lgb_params("poisson")).fit(X, y)
     return models
 
@@ -159,7 +163,15 @@ def predict_lgbm(models: dict, X: np.ndarray, shape: tuple[int, int], no_sale: n
     mean = np.maximum(models["poisson"].predict(Xf), 0.0).reshape(S, n)
     Q[no_sale] = 0.0
     mean[no_sale] = 0.0
-    return {"Q": Q, "mean": mean}
+    out = {"Q": Q, "mean": mean}
+    if models.get("q_ext"):
+        ext_q = sorted(models["q_ext"])
+        Qe = np.stack([models["q_ext"][q].predict(Xf) for q in ext_q], axis=-1)
+        Qe = np.maximum(Qe, 0.0).reshape(S, n, len(ext_q))
+        Qe = np.minimum.accumulate(np.minimum(Qe, Q[..., :1])[..., ::-1], axis=-1)[..., ::-1]  # không vượt phân vị chính đầu tiên, tăng dần
+        Qe[no_sale] = 0.0
+        out["Qext"] = np.maximum.accumulate(Qe, axis=-1)
+    return out
 
 
 # ----------------------------------------------------------------------------- MLP-NB
@@ -205,14 +217,15 @@ def _mlp_forward(torch, net, x, base):
 
 
 def fit_mlp_nb(Xtr: np.ndarray, ytr: np.ndarray, org_tr: np.ndarray, names: list[str], H: int,
-               fixed_epochs: int | None = None) -> dict:
+               fixed_epochs: int | None = None, seed: int | None = None, max_epochs: int | None = None) -> dict:
     """Huấn luyện MLP-NB bằng NLL trực tiếp trên D_H. Chọn số epoch bằng tập kiểm tra nội bộ = các gốc cuối của train
     (có purge H ngày); nếu `fixed_epochs` cho trước thì dùng đúng số epoch đó (huấn luyện lại trên train+val)."""
     import torch
 
-    torch.manual_seed(SEED)
+    seed = SEED if seed is None else int(seed)
+    torch.manual_seed(seed)
     torch.set_num_threads(max(1, torch.get_num_threads()))
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed)
     n_hold = int(CONFIG["mlp_holdout_origins"])
     last = org_tr.max()
     if fixed_epochs is None:
@@ -230,7 +243,7 @@ def fit_mlp_nb(Xtr: np.ndarray, ytr: np.ndarray, org_tr: np.ndarray, names: list
     net = build_mlp(torch, Z.shape[1])
     opt = torch.optim.Adam(net.parameters(), lr=float(CONFIG["mlp_lr"]))
     bs = int(CONFIG["mlp_batch_size"])
-    max_ep = int(CONFIG["mlp_max_epochs"]) if fixed_epochs is None else fixed_epochs
+    max_ep = int(CONFIG["mlp_max_epochs"] if max_epochs is None else max_epochs) if fixed_epochs is None else fixed_epochs
     best = (np.inf, 0, None)
     hist = []
     t0 = time.time()
@@ -278,4 +291,6 @@ def predict_mlp_nb(model: dict, X: np.ndarray, shape: tuple[int, int], no_sale: 
     mu[no_sale] = 0.0
     Q = nb_quantiles(mu, al, QGRID)
     Q[no_sale] = 0.0
-    return {"mean": mu, "alpha": al, "Q": Q}
+    Qe = nb_quantiles(mu, al, EXT_QGRID)
+    Qe[no_sale] = 0.0
+    return {"mean": mu, "alpha": al, "Q": Q, "Qext": Qe}

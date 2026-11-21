@@ -219,7 +219,7 @@ q* tối thiểu hóa tổng chi phí (so với chính sách điểm):
 
 
 ### Tách nhanh/chậm (L=2)
-L=2, nhóm speed=fast, tổng chi phí TB/chuỗi (cost_ratio=10):
+L=2, nhóm speed=fast, tổng chi phí TB/chuỗi (cost_ratio=10; cột = mức q của chính sách phân vị, cột 'point' = chính sách điểm S=ceil(mean)):
 | model | 0.5 | 0.6 | 0.7 | 0.8 | 0.85 | 0.9 | 0.95 | 0.975 | 0.99 | point(ceil mean) |
 |---|---|---|---|---|---|---|---|---|---|---|
 | WindowAverage | 543.5767 | 508.2423 | 483.3589 | 474.6994 | 480.0337 | 498.9202 | 550.7055 | 613.5920 | 699.8773 | 515.1472 |
@@ -230,7 +230,7 @@ L=2, nhóm speed=fast, tổng chi phí TB/chuỗi (cost_ratio=10):
 | LGBM-PoisNB | 505.3865 | 471.9018 | 450.0245 | 445.4509 | 454.6687 | 475.7147 | 529.4509 | 592.8282 | 678.9908 | 481.3160 |
 | MLP-NB | 480.4908 | 455.8773 | 441.1380 | 438.7822 | 447.8221 | 468.2301 | 521.6196 | 589.8773 | 695.1840 | 463.3988 |
 
-L=2, nhóm speed=fast, fill rate:
+L=2, nhóm speed=fast, fill rate (cost_ratio không ảnh hưởng fill rate; cột = q, 'point' = chính sách điểm):
 | model | 0.5 | 0.6 | 0.7 | 0.8 | 0.85 | 0.9 | 0.95 | 0.975 | 0.99 | point(ceil mean) |
 |---|---|---|---|---|---|---|---|---|---|---|
 | WindowAverage | 0.7616 | 0.8082 | 0.8524 | 0.8946 | 0.9158 | 0.9369 | 0.9577 | 0.9685 | 0.9773 | 0.7982 |
@@ -241,7 +241,7 @@ L=2, nhóm speed=fast, fill rate:
 | LGBM-PoisNB | 0.7937 | 0.8378 | 0.8790 | 0.9172 | 0.9350 | 0.9533 | 0.9710 | 0.9797 | 0.9861 | 0.8270 |
 | MLP-NB | 0.8210 | 0.8575 | 0.8913 | 0.9236 | 0.9389 | 0.9552 | 0.9730 | 0.9834 | 0.9908 | 0.8481 |
 
-L=2, nhóm speed=slow, tổng chi phí TB/chuỗi (cost_ratio=10):
+L=2, nhóm speed=slow, tổng chi phí TB/chuỗi (cost_ratio=10; cột = mức q của chính sách phân vị, cột 'point' = chính sách điểm S=ceil(mean)):
 | model | 0.5 | 0.6 | 0.7 | 0.8 | 0.85 | 0.9 | 0.95 | 0.975 | 0.99 | point(ceil mean) |
 |---|---|---|---|---|---|---|---|---|---|---|
 | WindowAverage | 102.1307 | 94.4318 | 89.0625 | 87.1420 | 88.4034 | 93.1136 | 105.5000 | 122.3352 | 148.2159 | 89.4432 |
@@ -252,7 +252,7 @@ L=2, nhóm speed=slow, tổng chi phí TB/chuỗi (cost_ratio=10):
 | LGBM-PoisNB | 99.1136 | 91.7841 | 87.5284 | 85.4205 | 89.4830 | 95.6250 | 110.1364 | 129.5455 | 157.1534 | 91.3580 |
 | MLP-NB | 95.4830 | 89.2955 | 85.2898 | 84.6023 | 86.3409 | 91.8750 | 107.3409 | 125.6705 | 152.6534 | 89.1023 |
 
-L=2, nhóm speed=slow, fill rate:
+L=2, nhóm speed=slow, fill rate (cost_ratio không ảnh hưởng fill rate; cột = q, 'point' = chính sách điểm):
 | model | 0.5 | 0.6 | 0.7 | 0.8 | 0.85 | 0.9 | 0.95 | 0.975 | 0.99 | point(ceil mean) |
 |---|---|---|---|---|---|---|---|---|---|---|
 | WindowAverage | 0.4935 | 0.5872 | 0.6802 | 0.7688 | 0.8155 | 0.8647 | 0.9210 | 0.9476 | 0.9641 | 0.6716 |

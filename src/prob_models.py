@@ -18,6 +18,7 @@ from src.utils import ROOT, load_config
 CONFIG = load_config(ROOT / "configs" / "config.yaml")
 SEED = int(CONFIG["seed"])
 QGRID = [float(q) for q in CONFIG["quantile_grid"]]
+EXT_QGRID = [float(q) for q in CONFIG["quantile_grid_ext"]]  # lưới phụ q<0.5 (GĐ6), chỉ dùng cho mô phỏng
 ALPHA_MIN = float(CONFIG["alpha_min"])
 ALPHA_MAX = float(CONFIG["alpha_max"])
 MU_FLOOR = 1e-3
@@ -244,7 +245,7 @@ def stat_forecast(model: str, panel: Panel, H: int, origins: np.ndarray, params:
     M = stat_window_mean(model, panel.Y, H, params)
     alpha = estimate_alpha(panel.Y, M, H, origins, panel.group_ds, n_hist, w_series, kappa)
     mean = np.nan_to_num(M[:, origins])
-    return {"mean": mean, "alpha": alpha, "Q": nb_quantiles(mean, alpha, QGRID)}
+    return {"mean": mean, "alpha": alpha, "Q": nb_quantiles(mean, alpha, QGRID), "Qext": nb_quantiles(mean, alpha, EXT_QGRID)}
 
 
 # ----------------------------------------------------------------------------- chỉ số

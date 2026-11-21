@@ -48,3 +48,9 @@ stockout_cost_ratio: 10
 cost_ratios: [1, 2, 5, 10, 20, 50]
 lost_sales: true
 initial_inventory_rule: "order_up_to_at_start"   # tồn đầu = S của gốc đầu tiên, không có hàng đang về
+
+# ---- GĐ6 ----
+quantile_grid_ext: [0.3, 0.4]     # lưới phụ q<0.5 (chỉ dùng cho mô phỏng; không đổi tiêu chí tuning/đánh giá chính)
+safety_k_grid: [0.5, 3.0, 0.1]    # [bắt đầu, kết thúc, bước] của hệ số an toàn k cho chính sách điểm S = ceil(k * mean)
+mlp_seeds: [42, 43, 44]
+mlp_convergence_epochs: 80

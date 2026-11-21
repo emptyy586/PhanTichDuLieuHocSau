@@ -87,8 +87,9 @@ def aggregate(res: dict, demand: np.ndarray, masks: list, holding_cost: float, c
     return rows
 
 
-def run_inventory_sim(split: str, forecast_path=None, out_path=None) -> pd.DataFrame:
-    """Chạy mọi mô hình × q × L cộng chính sách điểm trên split; ghi results/inventory_sim_{split}.csv."""
+def run_inventory_sim(split: str, forecast_path=None, out_path=None, ext: bool = False) -> pd.DataFrame:
+    """Chạy mọi mô hình × q × L cộng chính sách điểm trên split; ghi results/inventory_sim_{split}.csv.
+    ext=True: chỉ chạy lưới phụ q<0.5 (khóa Qext) và ghi results/inventory_sim_{split}_ext.csv (không đụng kết quả chính)."""
     panel = load_panel()
     arr = np.load(forecast_path or ROOT / "results" / "forecasts" / f"{split}.npz", allow_pickle=True)
     start, end = split_bounds(panel, split)
@@ -102,6 +103,11 @@ def run_inventory_sim(split: str, forecast_path=None, out_path=None) -> pd.DataF
         H = L + R
         cases, meta = [], []
         for model in MODELS:
+            if ext:
+                Qe = arr[f"{model}|H{H}|Qext"]
+                for k, q in enumerate(arr["quantile_grid_ext"]):
+                    cases.append(np.ceil(Qe[..., k])), meta.append((model, "quantile", float(q)))
+                continue
             Q = arr[f"{model}|H{H}|Q"]
             for k, q in enumerate(QGRID):
                 cases.append(np.ceil(Q[..., k])), meta.append((model, "quantile", q))
@@ -111,7 +117,7 @@ def run_inventory_sim(split: str, forecast_path=None, out_path=None) -> pd.DataF
             model, policy, q = meta[r.pop("case")]
             rows.append({"model": model, "policy": policy, "q": q, "L": L, "H": H, **r})
     df = pd.DataFrame(rows)
-    df.to_csv(out_path or ROOT / "results" / f"inventory_sim_{split}.csv", index=False)
+    df.to_csv(out_path or ROOT / "results" / (f"inventory_sim_{split}_ext.csv" if ext else f"inventory_sim_{split}.csv"), index=False)
     return df
 
 
@@ -120,5 +126,7 @@ if __name__ == "__main__":
 
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", choices=["val", "test"], default="val")
-    d = run_inventory_sim(ap.parse_args().split)
+    ap.add_argument("--ext", action="store_true", help="chạy lưới phụ q<0.5")
+    a = ap.parse_args()
+    d = run_inventory_sim(a.split, ext=a.ext)
     print(d.shape)

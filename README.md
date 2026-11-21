@@ -19,7 +19,13 @@ python -m src.policy_analysis           # q*, bảng chính sách, hình, bootst
 python -m src.run_forecasts --split test   # dùng hparams.json đã chốt (KHÔNG tinh chỉnh lại), ~4 phút
 python -m src.inventory_sim --split test
 python -m src.final_eval                # đánh giá chính sách chốt từ val trên test
-python -m pytest -v                     # 34 test (cần đã chạy các bước trên vì có test đọc file kết quả)
+# --- Bổ sung GĐ6 ---
+python -m src.inventory_sim --split val --ext ; python -m src.inventory_sim --split test --ext   # lưới q phụ 0.3/0.4
+python -m src.safety_point              # chính sách điểm có hệ số an toàn k vs phân vị (val chọn, test đánh giá)
+python -m src.calibration               # P(y<q̂), P(y<=q̂)
+python -m src.ablation                  # LightGBM-Q bỏ giá/SNAP/sự kiện
+python -m src.mlp_seeds                 # MLP-NB 3 seed + đường NLL (~16 phút)
+python -m pytest -v                     # 41 test (cần đã chạy các bước trên vì có test đọc file kết quả)
 
 # Notebook (Restart & Run All)
 cd notebooks
@@ -30,8 +36,8 @@ Seed (42) và mọi tham số (lưới phân vị, lead time, chi phí, lưới 
 ## Cấu trúc thư mục
 - `configs/config.yaml` – cấu hình.
 - `data/raw/`, `data/processed/` – dữ liệu (không đưa vào git).
-- `src/` – `data.py` (split), `features.py` (ADI/CV², speed), `eda.py`, `models_stats.py` + `forecast_prob.py` (baseline/legacy), `prob_models.py` (Panel, Croston/TSB/WindowAverage/SeasonalNaive, NB, chỉ số), `tuning.py`, `ml_models.py` (đặc trưng, LightGBM, MLP-NB), `run_forecasts.py`, `inventory_sim.py`, `policy_analysis.py`, `final_eval.py`, `report_utils.py`.
-- `tests/` – pytest (dự báo, rò rỉ, mô phỏng tồn kho, kiểm tra tích hợp file kết quả).
+- `src/` – (GĐ6: `safety_point.py`, `calibration.py`, `ablation.py`, `mlp_seeds.py`, `gd6_report_tables.py`) `data.py` (split), `features.py` (ADI/CV², speed), `eda.py`, `models_stats.py` + `forecast_prob.py` (baseline/legacy), `prob_models.py` (Panel, Croston/TSB/WindowAverage/SeasonalNaive, NB, chỉ số), `tuning.py`, `ml_models.py` (đặc trưng, LightGBM, MLP-NB), `run_forecasts.py`, `inventory_sim.py`, `policy_analysis.py`, `final_eval.py`, `report_utils.py`.
+- `tests/` – pytest (41 test) (dự báo, rò rỉ, mô phỏng tồn kho, kiểm tra tích hợp file kết quả).
 - `notebooks/` – 01 EDA, 02 phân loại, 03 baseline, 04 kết quả cuối.
 - `results/` – kết quả, `results/figures/` hình, `results/tables/` bảng, `results/forecasts/{val,test}.npz` dự báo, `results/reports/` báo cáo.
 - `archive/` – file tạm đã dọn (không dùng).
@@ -46,10 +52,13 @@ Seed (42) và mọi tham số (lưới phân vị, lead time, chi phí, lưới 
 | `results/inventory_sim_val.csv`, `inventory_sim_test.csv` | mô phỏng tồn kho mọi mô hình × q × L × cost_ratio |
 | `results/q_star_val.csv`, `policy_table_val.csv` | q* và bảng chính sách đề xuất |
 | `results/policy_eval_val_test.csv`, `test_qstar_transfer.csv`, `policy_eval_bootstrap.csv`, `research_questions_{val,test}.csv` | so sánh val/test, bootstrap |
+| `results/safety_point_test.csv`, `q_star_ext_val.csv`, `inventory_sim_{val,test}_ext.csv` | GĐ6: điểm có hệ số an toàn vs phân vị, q* lưới mở rộng |
+| `results/calibration_table.csv`, `calibration_summary.csv`, `ablation_exog.csv`, `mlp_seeds.csv`, `mlp_nll_curves.csv` | GĐ6: hiệu chuẩn rời rạc, ablation ngoại sinh, 3 seed MLP-NB |
 | `results/figures/policy_*.png`, `final_*.png`, `eda_*.png` | biểu đồ (tiếng Việt) |
-| `results/reports/00…05_*.md`, `final_report.md` | báo cáo |
+| `results/reports/00…06_*.md`, `final_report.md` | báo cáo |
 
 ## Lưu ý
 - Chi phí mô phỏng là **tương đối** (giữ 1.0/đơn vị-ngày; thiếu = cost_ratio × 1.0), không phải chi phí thực.
 - MLP-NB là MLP có đầu ra Negative Binomial, không phải DeepAR/N-HiTS/TFT. WRMSSE không được tính (lý do trong báo cáo 02).
+- Lưu ý GĐ6: kết luận "phân vị tốt hơn điểm" chỉ đúng so với điểm THUẦN; so với điểm có hệ số an toàn chỉ còn hơn ở tỷ lệ chi phí cao; biến ngoại sinh giá/SNAP/sự kiện đóng góp ≤ 1% pinball (xem `06_bo_sung.md`).
 - Pipeline cũ (`forecast_prob.rolling_origin_eval`, `export_validation_outputs`) chỉ giữ để tham chiếu, không dùng cho kết quả chính thức.

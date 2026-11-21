@@ -1,0 +1,8 @@
+val 3 full 30 42.8s
+val 3 no_exog 24 30.5s
+val 4 full 30 35.6s
+val 4 no_exog 24 29.5s
+test 3 full 30 29.6s
+test 3 no_exog 24 22.7s
+test 4 full 30 27.9s
+test 4 no_exog 24 24.2s

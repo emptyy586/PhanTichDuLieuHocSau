@@ -29,7 +29,7 @@ Dự báo, H=3, tổng thể (validation vs test):
 | LGBM-PoisNB | 0.9302 | 0.9487 | 0.3697 | 0.3508 | 0.7672 | 0.7870 |
 | MLP-NB | 0.9025 | 0.9477 | 0.3701 | 0.3512 | 0.7597 | 0.7839 |
 
-WAPE theo speed (test, H=3):
+WAPE theo speed (test, H=3; đánh giá dự báo cửa sổ, không phụ thuộc tỷ lệ chi phí/L/q):
 | model | fast | medium | slow |
 |---|---|---|---|
 | WindowAverage | 0.3460 | 0.5409 | 0.7675 |
@@ -64,7 +64,7 @@ Mô phỏng, cost_ratio=10, q*(val) áp dụng cho test, L=2 (L=3 trong `05_fina
 | LGBM-PoisNB | 0.8000 | 0.9002 | 0.9024 | 256.4374 | 259.9672 | 283.9842 | -0.0712 | -0.0846 |
 | MLP-NB | 0.8000 | 0.9062 | 0.9034 | 252.4508 | 258.5030 | 275.8068 | -0.0546 | -0.0627 |
 
-Chính sách theo nhóm (chốt từ val, L=2) – bảng đề xuất:
+Chính sách theo nhóm (chốt từ val; cost_ratio=10, L=2; q = q_star trong từng dòng) – bảng đề xuất:
 | group | n_series_group | model | q_star | fill_rate | stockout_days | avg_inventory | total_cost | ghi_chu |
 |---|---|---|---|---|---|---|---|---|
 | erratic_fast | 45 | LGBM-Q | 0.7000 | 0.8629 | 4.1556 | 10.2444 | 474.6222 |  |
@@ -95,23 +95,55 @@ So sánh chính sách (val vs test):
 
 Biểu đồ trong `results/figures/`: `policy_tradeoff_fill_vs_inventory.png` (đánh đổi fill rate–tồn kho, tách nhanh/trung bình/chậm), `policy_total_cost_by_q.png`, `policy_qstar_heatmap.png`, `policy_forecast_error_by_group.png`, `final_val_vs_test_forecast.png`, `final_cost_val_vs_test.png`.
 
+
+### Bổ sung GĐ6 (chi tiết ở `06_bo_sung.md`)
+- **Hiệu chuẩn rời rạc** (q ≤ 0.95, 7 mức, tổng thể): số q mà q nằm trong [P(y<q̂), P(y≤q̂)] ±0.05: 7/7 ở mọi mô hình trừ SeasonalNaive (3/7), ở cả val/test và H=3/4; số q thỏa |P(y≤q̂) − q| ≤ 0.05 (test, H=3): CrostonSBA 7, LGBM-Q 7, WindowAverage 6, TSB 5, LGBM-PoisNB 4, MLP-NB 4, SeasonalNaive 2.
+- **MASE** có trong bảng dự báo chính phía trên (cột mase_*; scale chỉ trên train); H=4: `05_final_test.md`/`06_bo_sung.md` §8.
+- **Lưới q mở rộng** (0.3, 0.4): q* ở tỷ lệ 1–2 chuyển từ 0.5 xuống 0.3 (cận lưới mới), chi phí test giảm khoảng 15–20% so với q*=0.5 (ví dụ L=2, tỷ lệ 1: WindowAverage 126.17 → 104.60).
+
 ## 6. Trả lời các câu hỏi nghiên cứu
 Các KTC 95% là bootstrap theo chuỗi (2000 lần, seed 42) và chỉ phản ánh sai số lấy mẫu giữa các chuỗi trong cùng 28 ngày.
 
-**Câu 1 – Phân vị hay điểm?** Có điều kiện. (i) Chọn q* theo chi phí rẻ hơn chính sách điểm của cùng mô hình ở mọi tỷ lệ chi phí trên test (thay đổi tương đối ở tỷ lệ 10: MLP-NB −0.063, TSB −0.077, CrostonSBA −0.093; ở tỷ lệ 50: −0.442 … −0.561; ở tỷ lệ 5 gần 0, từ 0.000 đến −0.014; bảng đầy đủ trong `05_final_test.md`). q* được chọn còn chính sách điểm không có tham số nào để chỉnh nên so sánh có lợi cho phân vị. (ii) So sánh KHÔNG tinh chỉnh (q = ratio/(1+ratio) làm tròn lên lưới), test, L=2, hiệu chi phí phân vị − điểm [KTC]:
+**Câu 1 – Phân vị hay điểm? (đã sửa theo GĐ6, xem `06_bo_sung.md`)** Kết luận: phần lớn lợi thế ban đầu của phân vị là lợi thế của việc có hệ số an toàn; phân vị chỉ còn hơn rõ ở tỷ lệ chi phí thiếu/giữ cao.
+- So với chính sách điểm THUẦN (S = ceil(mean)), chính sách phân vị với q* chọn trên val rẻ hơn rõ trên test: KTC 95% dưới 0 ở 40/42 ô (7 mô hình × 6 tỷ lệ chi phí) cho cả L=2 và L=3 (ví dụ L=2, tỷ lệ 10: CrostonSBA −31.03, MLP-NB −17.30; tỷ lệ 50: −429.60 … −663.59 đơn vị chi phí).
+- Nhưng khi chính sách điểm có hệ số an toàn S = ceil(k × mean), k ∈ {0.5, …, 3.0} chọn trên val cho từng (mô hình, tỷ lệ, L), nó cũng rẻ hơn điểm thuần ở 35/42 ô (L=2) và 37/42 ô (L=3), và gần ngang phân vị ở tỷ lệ trung bình: L=2, tỷ lệ 10, KTC của (điểm an toàn − phân vị) chứa 0 ở 5/7 mô hình; chênh nhỏ nhất có ý nghĩa là MLP-NB 2.11 [0.68; 3.77] (≈0.8% chi phí) và ngược chiều ở SeasonalNaive −2.59 [−3.81; −1.34].
+- Phân vị còn hơn rõ ở tỷ lệ cao: tỷ lệ 50 (L=2) điểm an toàn đắt hơn phân vị 19.73 … 43.35 ở 6/7 mô hình (KTC dương); tỷ lệ 20 ở 5/7 mô hình. Ở tỷ lệ 1–2 điểm an toàn thường rẻ hơn hoặc ngang, nhưng cả k*=0.5 và q*=0.3 đều chạm cận lưới nên không kết luận chắc.
+Test, L=2: chi phí[điểm an toàn k] − chi phí[phân vị q*] [KTC 95%] (dương = phân vị rẻ hơn; nhóm = toàn bộ 823 chuỗi; cột = tỷ lệ chi phí thiếu/giữ; k và q* chọn trên val cho từng ô):
 | model | 1.0 | 2.0 | 5.0 | 10.0 | 20.0 | 50.0 |
 |---|---|---|---|---|---|---|
-| WindowAverage | -15.45 [-16.03; -14.90] | 14.83 [13.16; 16.68] | 26.96 [23.17; 30.85] | -13.56 [-22.41; -5.58] | -125.79 [-150.78; -104.20] | -561.10 [-638.70; -493.37] |
-| SeasonalNaive | -11.24 [-12.11; -10.44] | 30.13 [28.25; 32.18] | 61.81 [57.15; 67.08] | 35.30 [27.89; 42.67] | -47.62 [-65.22; -29.53] | -441.91 [-497.13; -389.31] |
-| CrostonSBA | -17.19 [-18.20; -16.26] | 14.77 [12.87; 16.81] | 26.03 [21.25; 30.86] | -21.60 [-31.37; -12.32] | -154.43 [-180.13; -131.04] | -663.59 [-746.25; -590.66] |
-| TSB | -16.05 [-16.57; -15.54] | 14.52 [12.90; 16.26] | 27.49 [23.98; 30.89] | -11.44 [-19.79; -3.93] | -119.86 [-144.20; -98.47] | -540.85 [-619.55; -471.12] |
-| LGBM-Q | -8.12 [-8.83; -7.48] | 22.42 [21.15; 23.71] | 36.03 [33.26; 38.96] | 0.16 [-7.11; 6.62] | -96.97 [-117.09; -79.21] | -491.24 [-555.43; -434.81] |
-| LGBM-PoisNB | -16.39 [-17.04; -15.79] | 13.58 [12.21; 14.99] | 28.94 [25.70; 32.33] | -6.60 [-13.93; -0.50] | -102.11 [-122.20; -85.00] | -486.95 [-551.93; -431.27] |
-| MLP-NB | -15.42 [-15.99; -14.84] | 13.32 [11.76; 15.03] | 27.75 [24.51; 31.16] | -1.00 [-7.58; 4.83] | -84.80 [-102.42; -69.98] | -430.20 [-484.08; -382.71] |
+| WindowAverage | -7.48 [-9.26; -5.81] | 2.46 [0.91; 4.08] | -0.09 [-1.22; 0.84] | 0.17 [-0.97; 1.40] | 10.04 [5.80; 14.82] | 36.70 [26.27; 48.45] |
+| SeasonalNaive | -14.61 [-16.59; -12.68] | -2.92 [-4.80; -0.91] | 5.00 [2.65; 7.63] | -2.59 [-3.81; -1.34] | -3.29 [-6.54; 0.06] | -5.36 [-18.21; 5.58] |
+| CrostonSBA | -4.91 [-6.49; -3.49] | 2.69 [1.26; 4.21] | 0.04 [-0.58; 0.65] | -0.04 [-1.42; 1.30] | 6.28 [2.08; 10.53] | 43.35 [30.88; 57.46] |
+| TSB | -8.10 [-10.01; -6.35] | 2.74 [1.20; 4.26] | 0.88 [0.01; 1.64] | 0.69 [-0.48; 1.87] | 6.57 [3.05; 10.39] | 19.73 [9.10; 30.95] |
+| LGBM-Q | -13.09 [-14.71; -11.50] | 1.54 [-0.31; 3.56] | 1.63 [0.64; 2.69] | -0.15 [-2.14; 1.76] | 3.43 [-1.23; 8.68] | 23.95 [12.89; 35.72] |
+| LGBM-PoisNB | -6.79 [-8.55; -5.14] | 4.71 [2.92; 6.60] | 1.69 [0.63; 2.49] | 1.31 [-0.91; 3.78] | 5.17 [0.83; 10.16] | 21.00 [9.88; 33.04] |
+| MLP-NB | -10.98 [-13.11; -8.91] | 3.08 [1.13; 5.14] | 3.79 [2.73; 4.88] | 2.11 [0.68; 3.77] | 8.67 [5.26; 12.60] | 26.52 [16.68; 37.17] |
 
-Tỷ lệ 2: phân vị đắt hơn điểm ở mọi mô hình; tỷ lệ 10: hỗn hợp (CrostonSBA, TSB, WindowAverage, LGBM-PoisNB rẻ hơn rõ; MLP-NB và LGBM-Q không khác biệt; SeasonalNaive đắt hơn); tỷ lệ 50: rẻ hơn rất nhiều ở mọi mô hình. (iii) Trên val, ở cùng fill rate, chính sách phân vị cần tồn kho gần như bằng chính sách điểm (`04_sensitivity_policy.md`): lợi ích chính là chọn được mức phục vụ cao khi thiếu hàng đắt, không phải hiệu quả tồn kho vượt trội ở cùng mức phục vụ. Hạn chế: chi phí là giả định; q* chạm cận dưới lưới (0.5) ở tỷ lệ ≤5; chỉ 28 ngày.
+Test, L=2: chi phí[phân vị q*] − chi phí[điểm thuần]:
+| model | 1.0 | 2.0 | 5.0 | 10.0 | 20.0 | 50.0 |
+|---|---|---|---|---|---|---|
+| WindowAverage | -37.02 [-39.11; -35.01] | -22.97 [-24.56; -21.36] | 0.09 [-0.84; 1.22] | -23.53 [-29.59; -18.08] | -134.36 [-156.95; -115.18] | -561.10 [-638.70; -493.37] |
+| SeasonalNaive | -41.59 [-43.93; -39.31] | -29.65 [-31.28; -27.97] | -3.15 [-4.00; -2.17] | -12.58 [-16.05; -9.36] | -96.14 [-109.83; -83.21] | -466.20 [-517.28; -416.74] |
+| CrostonSBA | -39.61 [-42.67; -36.77] | -24.00 [-26.69; -21.53] | -0.04 [-0.65; 0.58] | -31.03 [-37.91; -24.73] | -160.06 [-184.21; -138.80] | -663.59 [-746.25; -590.66] |
+| TSB | -38.56 [-40.58; -36.64] | -25.04 [-26.60; -23.47] | -0.88 [-1.64; -0.01] | -23.12 [-28.94; -17.98] | -128.64 [-149.80; -109.80] | -540.85 [-619.55; -471.12] |
+| LGBM-Q | -31.32 [-32.97; -29.72] | -20.44 [-21.70; -19.16] | -1.63 [-2.69; -0.64] | -22.56 [-26.91; -18.73] | -120.20 [-136.87; -105.49] | -502.03 [-562.55; -449.19] |
+| LGBM-PoisNB | -37.61 [-39.35; -36.04] | -23.61 [-24.92; -22.35] | -1.69 [-2.49; -0.63] | -24.02 [-29.80; -18.90] | -121.94 [-140.98; -105.48] | -499.08 [-561.94; -446.12] |
+| MLP-NB | -36.80 [-38.60; -35.14] | -25.16 [-26.64; -23.72] | -2.00 [-2.88; -1.10] | -17.30 [-21.74; -13.44] | -98.63 [-113.73; -85.35] | -429.60 [-479.66; -385.23] |
 
-**Câu 2 – Nhanh vs chậm/gián đoạn.** Sai số tương đối lớn hơn nhiều ở hàng chậm: WAPE (test, H=3) nhanh/chậm của MLP-NB 0.2931/0.7320, TSB 0.3372/0.7494, SeasonalNaive 0.3627/0.9250. Lợi ích của chính sách phân vị theo q newsvendor (tỷ lệ 10, test, L=2) tập trung ở hàng nhanh: hiệu chi phí so với điểm của TSB là −44.34 [−63.49; −25.89] ở nhanh nhưng +15.35 [11.83; 19.01] ở chậm. Toàn bộ bảng:
+Test, L=2: chi phí[điểm an toàn k] − chi phí[điểm thuần]:
+| model | 1.0 | 2.0 | 5.0 | 10.0 | 20.0 | 50.0 |
+|---|---|---|---|---|---|---|
+| WindowAverage | -44.49 [-48.06; -41.06] | -20.51 [-22.82; -18.26] | 0.00 [0.00; 0.00] | -23.37 [-28.97; -18.16] | -124.32 [-144.45; -106.35] | -524.40 [-597.66; -460.19] |
+| SeasonalNaive | -56.19 [-59.91; -52.49] | -32.57 [-35.34; -29.91] | 1.85 [-0.83; 4.88] | -15.17 [-18.03; -12.64] | -99.42 [-113.22; -86.26] | -471.56 [-524.87; -423.04] |
+| CrostonSBA | -44.51 [-48.80; -40.51] | -21.31 [-24.81; -18.14] | 0.00 [0.00; 0.00] | -31.07 [-37.36; -25.43] | -153.78 [-178.16; -133.22] | -620.24 [-699.65; -549.85] |
+| TSB | -46.65 [-50.35; -43.07] | -22.30 [-24.57; -20.10] | 0.00 [0.00; 0.00] | -22.43 [-27.96; -17.12] | -122.07 [-142.25; -104.31] | -521.12 [-594.69; -456.33] |
+| LGBM-Q | -44.40 [-47.43; -41.44] | -18.90 [-21.18; -16.57] | 0.00 [0.00; 0.00] | -22.71 [-27.18; -18.78] | -116.77 [-133.84; -101.17] | -478.08 [-536.20; -426.83] |
+| LGBM-PoisNB | -44.40 [-47.43; -41.44] | -18.90 [-21.18; -16.57] | 0.00 [0.00; 0.00] | -22.71 [-27.18; -18.78] | -116.77 [-133.84; -101.17] | -478.08 [-536.20; -426.83] |
+| MLP-NB | -47.78 [-51.37; -44.34] | -22.08 [-24.36; -19.81] | 1.79 [0.61; 3.15] | -15.20 [-18.74; -11.98] | -89.96 [-103.57; -78.35] | -403.09 [-452.87; -359.89] |
+
+Hạn chế: k và q* cùng chọn trên val; k là một hệ số chung cho mọi chuỗi; chi phí là giả định; chỉ 28 ngày; KTC bootstrap coi chuỗi độc lập. Ở cùng fill rate, trên val chính sách phân vị cần tồn kho gần bằng chính sách điểm (báo cáo 04), nhất quán với kết luận trên.
+
+**Câu 2 – Nhanh vs chậm/gián đoạn.** Sai số tương đối lớn hơn nhiều ở hàng chậm: WAPE (test, H=3) nhanh/chậm của MLP-NB 0.2931/0.7320, TSB 0.3372/0.7494, SeasonalNaive 0.3627/0.9250. Lợi ích của chính sách phân vị theo q newsvendor (tỷ lệ 10, test, L=2) tập trung ở hàng nhanh: hiệu chi phí so với điểm của TSB là −44.34 [−63.49; −25.89] ở nhanh nhưng +15.35 [11.83; 19.01] ở chậm. Toàn bộ bảng [tỷ lệ chi phí 10, L=2, q=0.9 = q newsvendor; hiệu chi phí phân vị − điểm thuần, nhóm tốc độ bán; test]:
 | model | fast | medium | slow |
 |---|---|---|---|
 | WindowAverage | -45.30 [-65.46; -25.59] | 5.04 [0.34; 9.81] | 11.32 [7.66; 15.33] |
@@ -138,7 +170,17 @@ Chi phí mô phỏng (cùng q newsvendor, tỷ lệ 10, L=2), MLP-NB − đối 
 | Q3: MLP-NB - LGBM-Q (cung q_newsvendor) | -9.34 [-11.57; -6.90] | -3.00 [-7.95; 2.75] | -13.06 [-14.74; -11.47] | -14.29 [-16.59; -12.20] |
 | Q3: MLP-NB - TSB (cung q_newsvendor) | -14.80 [-19.34; -10.73] | -28.24 [-38.95; -18.71] | -6.65 [-9.17; -4.25] | -4.75 [-7.43; -2.16] |
 
-Tuy nhiên LightGBM phân vị (không phải học sâu) ngang hoặc hơn MLP-NB: trên val MLP-NB hơn (0.9025 vs 0.9109), trên test LGBM-Q hơn (0.9354 vs 0.9477; hiệu +0.0123 [0.0015; 0.0253]). MLP-NB và LightGBM dùng cùng 30 đặc trưng (có giá, SNAP, sự kiện, thứ) còn Croston/TSB chỉ dùng lịch sử doanh số, nên lợi thế phần lớn đến từ biến ngoại sinh chứ chưa chứng minh là từ "học sâu"; chưa có đối chứng Croston/TSB + biến ngoại sinh.
+Tuy nhiên LightGBM phân vị (không phải học sâu) ngang hoặc hơn MLP-NB. Thứ hạng đổi giữa val (MLP-NB 0.9025 < LGBM-Q 0.9109, H=3) và test (LGBM-Q 0.9354 < MLP-NB 0.9477; hiệu +0.0123 [0.0015; 0.0253]), và KHÔNG do nhiễu seed: với 3 seed (42, 43, 44), pinball_avg (trung bình ± độ lệch chuẩn):
+| split | H | n_seed | pinball_avg | wape | mase | epochs | kappa |
+|---|---|---|---|---|---|---|---|
+| test | 3 | 3 | 0.9477 ± 0.0021 | 0.3515 ± 0.0004 | 0.7843 ± 0.0005 | 17/25/20 | 0.5/0.5/0.5 |
+| test | 4 | 3 | 1.1449 ± 0.0045 | 0.3170 ± 0.0006 | 0.8031 ± 0.0032 | 30/16/26 | 0.5/0.5/0.5 |
+| val | 3 | 3 | 0.9026 ± 0.0005 | 0.3680 ± 0.0029 | 0.7559 ± 0.0043 | 17/25/20 | 0.5/0.5/0.5 |
+| val | 4 | 3 | 1.0899 ± 0.0038 | 0.3315 ± 0.0022 | 0.7748 ± 0.0043 | 30/16/26 | 0.5/0.5/0.5 |
+
+cả 3 seed tốt hơn LGBM-Q trên val và cả 3 kém hơn LGBM-Q trên test.
+**Giải thích về biến ngoại sinh (đã sửa theo GĐ6)**: ablation bỏ giá, SNAP và sự kiện khỏi LightGBM-Q (30 → 24 đặc trưng) chỉ làm pinball_avg tăng ≤ 1% (val H=3 0.9109 → 0.9185; test H=3 0.9354 → 0.9385) và bản không ngoại sinh vẫn hơn hẳn TSB/CrostonSBA. Vì vậy lợi thế so với Croston/TSB KHÔNG đến chủ yếu từ giá/SNAP/sự kiện; nó đến từ đặc trưng lịch sử đa thang và thứ trong tuần (còn được giữ trong bản ablation) cùng việc huấn luyện trực tiếp phân phối của D_H. Chưa tách riêng yếu tố lịch và chưa có đối chứng Croston/TSB + biến ngoại sinh, nên chưa chứng minh được phần đóng góp của "học sâu" so với học máy cây.
+Hội tụ MLP-NB: khi cho chạy tới 80 epoch, epoch tốt nhất là 58 (H=3) và 46 (H=4) nhưng NLL holdout gần như phẳng (H=4: chênh 0.0010 giữa epoch 30 và tốt nhất), nên kết quả với trần 30 epoch xấp xỉ hội tụ.
 
 ## 7. Hạn chế
 - Chỉ 28 ngày val và 28 ngày test, một cửa hàng, một phòng ban; không lặp theo nhiều giai đoạn; KTC bootstrap coi các chuỗi độc lập.
@@ -146,7 +188,9 @@ Tuy nhiên LightGBM phân vị (không phải học sâu) ngang hoặc hơn MLP-
 - Chi phí giữ/thiếu và quy tắc khởi tạo tồn kho là giả định tương đối; q* chạm cận dưới lưới ở tỷ lệ ≤5.
 - Không có DeepAR/N-HiTS/TFT/Chronos-2; không có WRMSSE; LightGBM không refit theo `refit_every` trong từng giai đoạn; một seed duy nhất.
 - Coverage theo nghĩa đen chưa đạt mục tiêu ở q thấp do tính rời rạc; SeasonalNaive kém hiệu chuẩn ở đuôi.
-- Xếp hạng MLP-NB và LightGBM không ổn định giữa val và test.
+- Xếp hạng MLP-NB và LightGBM đổi chiều giữa val và test (không do nhiễu seed); MLP-NB H=4 dừng ở trần 30 epoch (cực tiểu NLL ở epoch 46, chênh rất nhỏ).
+- Lưới q chính bắt đầu ở 0.5; lưới phụ 0.3/0.4 cho thấy q* ở tỷ lệ 1–2 chạm cận 0.3 (06); hệ số an toàn k cũng chạm cận 0.5 ở tỷ lệ 1–2.
+- Hiệu chuẩn rời rạc: LGBM-Q cho phân vị liên tục nên khoảng [P(y<q̂), P(y≤q̂)] suy biến; dùng |P(y≤q̂) − q| ≤ 0.05 (đạt 7/7 ở mọi split, H).
 
 ## 8. Tài liệu tham khảo
 - Makridakis, S., Spiliotis, E., Assimakopoulos, V. (2022). The M5 accuracy competition: results, findings, and conclusions. International Journal of Forecasting 38(4). Dữ liệu: Kaggle "M5 Forecasting – Accuracy" (https://www.kaggle.com/c/m5-forecasting-accuracy).

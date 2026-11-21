@@ -19,9 +19,9 @@ FIG = ROOT / "results" / "figures"
 TAB = ROOT / "results" / "tables"
 BASE_RATIO = float(CONFIG["stockout_cost_ratio"])
 MIN_GROUP_N = 30  # nhóm ít hơn 30 chuỗi → dùng chính sách của nhóm speed tương ứng
-COLORS = {"WindowAverage": "#7f7f7f", "SeasonalNaive": "#8c564b", "CrostonSBA": "#bcbd22", "TSB": "#2ca02c",
+COLORS = {"DeepAR": "#ff7f0e", "WindowAverage": "#7f7f7f", "SeasonalNaive": "#8c564b", "CrostonSBA": "#bcbd22", "TSB": "#2ca02c",
           "LGBM-Q": "#1f77b4", "LGBM-PoisNB": "#17becf", "MLP-NB": "#d62728"}
-STYLES = {"WindowAverage": "-", "SeasonalNaive": "-", "CrostonSBA": "--", "TSB": "--", "LGBM-Q": "-", "LGBM-PoisNB": ":", "MLP-NB": "-"}
+STYLES = {"DeepAR": "-", "WindowAverage": "-", "SeasonalNaive": "-", "CrostonSBA": "--", "TSB": "--", "LGBM-Q": "-", "LGBM-PoisNB": ":", "MLP-NB": "-"}
 SPEED_VI = {"fast": "nhanh", "medium": "trung bình", "slow": "chậm", "overall": "tất cả"}
 
 
@@ -90,11 +90,11 @@ def _save(fig, name: str) -> str:
     return f"results/figures/{name}"
 
 
-def plot_tradeoff(sim: pd.DataFrame, L: int = 2) -> str:
+def plot_tradeoff(sim: pd.DataFrame, L: int = 2, models: list[str] | None = None) -> str:
     """Hình 1: đường đánh đổi fill rate – tồn kho trung bình theo q, tách nhanh/trung bình/chậm; chấm vuông = chính sách điểm."""
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.8))
     for ax, sp in zip(axes, ["fast", "medium", "slow"]):
-        for m in MODELS:
+        for m in (models or MODELS):
             s = sim[(sim.model == m) & (sim.L == L) & (sim.group_type == "speed") & (sim.group == sp) & (sim.cost_ratio == BASE_RATIO)]
             q = s[s.policy == "quantile"].sort_values("q")
             ax.plot(q.avg_inventory, q.fill_rate, STYLES[m], color=COLORS[m], marker="o", ms=3, label=m)
@@ -107,11 +107,11 @@ def plot_tradeoff(sim: pd.DataFrame, L: int = 2) -> str:
     return _save(fig, "policy_tradeoff_fill_vs_inventory.png")
 
 
-def plot_cost_by_q(sim: pd.DataFrame, L: int = 2, ratio: float = BASE_RATIO) -> str:
+def plot_cost_by_q(sim: pd.DataFrame, L: int = 2, ratio: float = BASE_RATIO, models: list[str] | None = None) -> str:
     """Hình 2: tổng chi phí theo q cho từng mô hình (tất cả và theo speed); sao = q*; đường ngang chấm = chính sách điểm."""
     fig, axes = plt.subplots(2, 2, figsize=(13, 8.5))
     for ax, (gt, g) in zip(axes.ravel(), [("overall", "overall"), ("speed", "fast"), ("speed", "medium"), ("speed", "slow")]):
-        for m in MODELS:
+        for m in (models or MODELS):
             s = sim[(sim.model == m) & (sim.L == L) & (sim.group_type == gt) & (sim.group == g) & (sim.cost_ratio == ratio)]
             q = s[s.policy == "quantile"].sort_values("q")
             ax.plot(q.q, q.total_cost, STYLES[m], color=COLORS[m], marker="o", ms=3, label=m)

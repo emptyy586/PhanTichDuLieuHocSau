@@ -96,7 +96,7 @@ def aggregate(res: dict, demand: np.ndarray, masks: list, holding_cost: float, c
     return rows
 
 
-def run_inventory_sim(split: str, forecast_path=None, out_path=None, ext: bool = False) -> pd.DataFrame:
+def run_inventory_sim(split: str, forecast_path=None, out_path=None, ext: bool = False, models: list[str] | None = None) -> pd.DataFrame:
     """Chạy mọi mô hình × q × L cộng chính sách điểm trên split; ghi results/inventory_sim_{split}.csv.
     ext=True: chỉ chạy lưới phụ q<0.5 (khóa Qext) và ghi results/inventory_sim_{split}_ext.csv (không đụng kết quả chính)."""
     panel = load_panel()
@@ -111,7 +111,7 @@ def run_inventory_sim(split: str, forecast_path=None, out_path=None, ext: bool =
     for L in [int(x) for x in CONFIG["lead_times"]]:
         H = L + R
         cases, meta = [], []
-        for model in MODELS:
+        for model in (MODELS if models is None else models):
             if ext:
                 Qe = arr[f"{model}|H{H}|Qext"]
                 for k, q in enumerate(arr["quantile_grid_ext"]):

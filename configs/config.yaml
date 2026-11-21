@@ -17,3 +17,34 @@ refit_every: 7
 lightgbm_learning_rate: 0.05
 lightgbm_num_leaves: 31
 lightgbm_n_estimators: 200
+
+# ---- GĐ2: dự báo xác suất cửa sổ D_H(t) (H = lead_time + review_period) ----
+quantile_grid: [0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95, 0.975, 0.99]
+lead_times: [2, 3]            # H = lead_time + review_period -> H in {3, 4}
+alpha_hist_window: 180        # số gốc lịch sử dùng ước lượng độ phân tán NB cuốn chiếu
+alpha_min: 0.001              # sàn alpha NB (≈ Poisson)
+alpha_max: 20.0
+tune_kappa: [0.1, 0.2, 0.35, 0.5, 0.75, 1.0, 1.5, 2.0]
+tune_w_series: [0.0, 0.5, 1.0]
+croston_alpha_grid: [0.05, 0.1, 0.2, 0.3]
+tsb_alpha_d_grid: [0.05, 0.1, 0.2]
+tsb_alpha_p_grid: [0.01, 0.03, 0.05, 0.1, 0.2]
+ml_train_days: 730            # số ngày gốc huấn luyện gần nhất cho LightGBM/MLP
+lightgbm_min_child_samples: 100
+mlp_hidden: [128, 64]
+mlp_dropout: 0.1
+mlp_lr: 0.001
+mlp_batch_size: 2048
+mlp_max_epochs: 30
+mlp_holdout_origins: 56
+
+# ---- GĐ3: mô phỏng tồn kho (chi phí TƯƠNG ĐỐI, không phải chi phí thực) ----
+# holding_cost: chi phí giữ 1 đơn vị trong 1 ngày (đơn vị chi phí tương đối = 1.0).
+# stockout_cost_ratio: chi phí thiếu 1 đơn vị = ratio × holding_cost. Cơ sở = 10 (thiếu 1 đơn vị đắt gấp 10 lần giữ 1 đơn vị-ngày;
+#   tương ứng mức phục vụ tối ưu newsvendor ≈ ratio/(1+ratio) ≈ 0.91 trên mỗi chu kỳ) – chỉ là giả định; GĐ4 quét cost_ratios.
+# lost_sales: nhu cầu thiếu bị mất (không backorder). Áp dụng giống hệt cho mọi mô hình.
+holding_cost: 1.0
+stockout_cost_ratio: 10
+cost_ratios: [1, 2, 5, 10, 20, 50]
+lost_sales: true
+initial_inventory_rule: "order_up_to_at_start"   # tồn đầu = S của gốc đầu tiên, không có hàng đang về

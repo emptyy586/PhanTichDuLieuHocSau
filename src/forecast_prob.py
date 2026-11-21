@@ -76,7 +76,9 @@ def sample_total_window(mean: float, variance: float, n_samples: int, rng: np.ra
     alpha = min(alpha, 1e2)
     n = 1.0 / alpha
     p = n / (n + mu_safe)
-    return rng.negative_binomial(n=max(n, 1.0), p=max(p, 1e-6), size=n_samples).astype(float)
+    # Gamma-Poisson: NB chính xác với mọi n > 0 (kể cả n < 1; trước đây ép n >= 1 làm trung bình bị phóng đại tới ~24 lần)
+    lam = rng.gamma(shape=n, scale=mu_safe / n, size=n_samples)
+    return rng.poisson(lam).astype(float)
 
 
 def build_prob_quantiles(mean: float, variance: float, q_levels: list[float] | None = None, n_samples: int | None = None) -> dict[str, float]:
@@ -121,13 +123,14 @@ def train_lightgbm_quantile(df: pd.DataFrame, target_col: str, feature_cols: lis
 
 
 def build_lag_features(data: pd.DataFrame, q_levels: list[float] | None = None) -> pd.DataFrame:
-    """Tạo đặc trưng lag/rolling, giá, thứ, tháng, và nhãn demand_type/speed. Chỉ dùng hiện tại và quá khứ, không leak tương lai."""
+    """[Legacy – GĐ2 dùng src/ml_models.build_features] Tạo đặc trưng lag/rolling, giá, thứ, tháng. Chỉ dùng quá khứ.
+
+    Đã bỏ các cột roll_mean_{lag} (trước đây đều bằng y dịch 1 ngày, trùng lặp, không phải trung bình trượt)."""
     q_levels = _as_float_list(q_levels)
     out = data.sort_values(["id", "date"]).copy()
     out["date"] = pd.to_datetime(out["date"])
     for lag in [7, 14, 28]:
         out[f"lag_{lag}"] = out.groupby("id")["y"].shift(lag)
-        out[f"roll_mean_{lag}"] = out.groupby("id")["y"].transform("shift").fillna(0)
     for lag in [7, 14, 28]:
         out[f"rolling_mean_{lag}"] = out.groupby("id")["y"].transform(lambda s: s.shift(1).rolling(window=lag, min_periods=1).mean())
         out[f"rolling_std_{lag}"] = out.groupby("id")["y"].transform(lambda s: s.shift(1).rolling(window=lag, min_periods=1).std())
@@ -171,7 +174,8 @@ def make_baseline_forecast(train_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def rolling_origin_eval(data: pd.DataFrame, split: str = "val", n_samples: int | None = None) -> pd.DataFrame:
-    """Tạo dự báo theo hai mức: daily (1 ngày) và window (tổng L+R ngày), theo nguyên tắc rolling-origin thật trên dữ liệu đến t-1."""
+    """[Legacy] Dự báo baseline NB cũ. LƯU Ý: chỉ dùng lịch sử split=="train" nên KHÔNG phải rolling-origin thật.
+    Dùng src/run_forecasts.py (gốc t dùng dữ liệu đến hết ngày t) cho kết quả chính thức."""
     data = data.copy()
     data["date"] = pd.to_datetime(data["date"])
     q_levels = _as_float_list(CONFIG.get("quantile_levels"))

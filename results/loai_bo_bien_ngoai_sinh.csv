@@ -1112,7 +1112,7 @@ LGBM-Q[full],4,speed,fast,pinball,0.99,0.3145156796056202,val,30
 LGBM-Q[full],4,speed,fast,coverage,0.99,0.9883435582822085,val,30
 LGBM-Q[full],4,speed,fast,coverage_lt,0.99,0.9883435582822085,val,30
 LGBM-Q[full],4,speed,fast,pinball_avg,,1.8008872373479594,val,30
-LGBM-Q[full],4,speed,fast,wape,,0.2826739882918594,val,30
+LGBM-Q[full],4,speed,fast,wape,,0.28267398829185947,val,30
 LGBM-Q[full],4,speed,fast,mase,,0.6733562146963653,val,30
 LGBM-Q[full],4,speed,fast,n_series,,326.0,val,30
 LGBM-Q[full],4,speed,medium,pinball,0.5,1.1844727700009205,val,30
@@ -1236,8 +1236,8 @@ LGBM-Q[full],4,demand_type,intermittent,pinball,0.99,0.11119763257143177,val,30
 LGBM-Q[full],4,demand_type,intermittent,coverage,0.99,0.9899761336515513,val,30
 LGBM-Q[full],4,demand_type,intermittent,coverage_lt,0.99,0.9899761336515513,val,30
 LGBM-Q[full],4,demand_type,intermittent,pinball_avg,,0.7195862723267732,val,30
-LGBM-Q[full],4,demand_type,intermittent,wape,,0.3728249882973819,val,30
-LGBM-Q[full],4,demand_type,intermittent,mase,,0.8428260126672705,val,30
+LGBM-Q[full],4,demand_type,intermittent,wape,,0.372824988297382,val,30
+LGBM-Q[full],4,demand_type,intermittent,mase,,0.8428260126672704,val,30
 LGBM-Q[full],4,demand_type,intermittent,n_series,,419.0,val,30
 LGBM-Q[full],4,demand_type,lumpy,pinball,0.5,1.6392128940545836,val,30
 LGBM-Q[full],4,demand_type,lumpy,coverage,0.5,0.5653556485355649,val,30
@@ -1267,8 +1267,8 @@ LGBM-Q[full],4,demand_type,lumpy,pinball,0.99,0.20121958398553527,val,30
 LGBM-Q[full],4,demand_type,lumpy,coverage,0.99,0.9874476987447699,val,30
 LGBM-Q[full],4,demand_type,lumpy,coverage_lt,0.99,0.9874476987447699,val,30
 LGBM-Q[full],4,demand_type,lumpy,pinball_avg,,1.0648402433361723,val,30
-LGBM-Q[full],4,demand_type,lumpy,wape,,0.4651705565035388,val,30
-LGBM-Q[full],4,demand_type,lumpy,mase,,0.7739793470462865,val,30
+LGBM-Q[full],4,demand_type,lumpy,wape,,0.46517055650353883,val,30
+LGBM-Q[full],4,demand_type,lumpy,mase,,0.7739793470462866,val,30
 LGBM-Q[full],4,demand_type,lumpy,n_series,,239.0,val,30
 LGBM-Q[full],4,demand_type,smooth,pinball,0.5,3.484436640750951,val,30
 LGBM-Q[full],4,demand_type,smooth,coverage,0.5,0.502,val,30
@@ -1360,8 +1360,8 @@ LGBM-Q[full],4,demand_type_x_speed,intermittent_fast,pinball,0.99,0.216570100842
 LGBM-Q[full],4,demand_type_x_speed,intermittent_fast,coverage,0.99,0.9918918918918919,val,30
 LGBM-Q[full],4,demand_type_x_speed,intermittent_fast,coverage_lt,0.99,0.9918918918918919,val,30
 LGBM-Q[full],4,demand_type_x_speed,intermittent_fast,pinball_avg,,1.435680545999883,val,30
-LGBM-Q[full],4,demand_type_x_speed,intermittent_fast,wape,,0.2650895523591474,val,30
-LGBM-Q[full],4,demand_type_x_speed,intermittent_fast,mase,,0.7413403719148324,val,30
+LGBM-Q[full],4,demand_type_x_speed,intermittent_fast,wape,,0.26508955235914733,val,30
+LGBM-Q[full],4,demand_type_x_speed,intermittent_fast,mase,,0.7413403719148323,val,30
 LGBM-Q[full],4,demand_type_x_speed,intermittent_fast,n_series,,74.0,val,30
 LGBM-Q[full],4,demand_type_x_speed,intermittent_medium,pinball,0.5,1.1172359099191134,val,30
 LGBM-Q[full],4,demand_type_x_speed,intermittent_medium,coverage,0.5,0.5211822660098522,val,30
@@ -1454,7 +1454,7 @@ LGBM-Q[full],4,demand_type_x_speed,lumpy_fast,coverage,0.99,0.9910112359550561,v
 LGBM-Q[full],4,demand_type_x_speed,lumpy_fast,coverage_lt,0.99,0.9910112359550561,val,30
 LGBM-Q[full],4,demand_type_x_speed,lumpy_fast,pinball_avg,,1.5677207526792065,val,30
 LGBM-Q[full],4,demand_type_x_speed,lumpy_fast,wape,,0.41641897349210044,val,30
-LGBM-Q[full],4,demand_type_x_speed,lumpy_fast,mase,,0.6253982547113259,val,30
+LGBM-Q[full],4,demand_type_x_speed,lumpy_fast,mase,,0.625398254711326,val,30
 LGBM-Q[full],4,demand_type_x_speed,lumpy_fast,n_series,,89.0,val,30
 LGBM-Q[full],4,demand_type_x_speed,lumpy_medium,pinball,0.5,1.2971926556221327,val,30
 LGBM-Q[full],4,demand_type_x_speed,lumpy_medium,coverage,0.5,0.5613793103448276,val,30
@@ -1485,7 +1485,7 @@ LGBM-Q[full],4,demand_type_x_speed,lumpy_medium,coverage,0.99,0.9844827586206897
 LGBM-Q[full],4,demand_type_x_speed,lumpy_medium,coverage_lt,0.99,0.9844827586206897,val,30
 LGBM-Q[full],4,demand_type_x_speed,lumpy_medium,pinball_avg,,0.8389078272110746,val,30
 LGBM-Q[full],4,demand_type_x_speed,lumpy_medium,wape,,0.5253359530921603,val,30
-LGBM-Q[full],4,demand_type_x_speed,lumpy_medium,mase,,0.8475151775801927,val,30
+LGBM-Q[full],4,demand_type_x_speed,lumpy_medium,mase,,0.8475151775801926,val,30
 LGBM-Q[full],4,demand_type_x_speed,lumpy_medium,n_series,,116.0,val,30
 LGBM-Q[full],4,demand_type_x_speed,lumpy_slow,pinball,0.5,0.7931045444132026,val,30
 LGBM-Q[full],4,demand_type_x_speed,lumpy_slow,coverage,0.5,0.5764705882352941,val,30
@@ -3717,7 +3717,7 @@ LGBM-Q[no_exog],4,overall,overall,coverage,0.99,0.9860510328068044,test,24
 LGBM-Q[no_exog],4,overall,overall,coverage_lt,0.99,0.9860510328068044,test,24
 LGBM-Q[no_exog],4,overall,overall,pinball_avg,,1.134743233893764,test,24
 LGBM-Q[no_exog],4,overall,overall,wape,,0.31625306961055605,test,24
-LGBM-Q[no_exog],4,overall,overall,mase,,0.8013550579126696,test,24
+LGBM-Q[no_exog],4,overall,overall,mase,,0.8013550579126697,test,24
 LGBM-Q[no_exog],4,overall,overall,n_series,,823.0,test,24
 LGBM-Q[no_exog],4,speed,fast,pinball,0.5,3.010631503305542,test,24
 LGBM-Q[no_exog],4,speed,fast,coverage,0.5,0.4912883435582822,test,24
@@ -3809,8 +3809,8 @@ LGBM-Q[no_exog],4,speed,slow,pinball,0.99,0.09470075972945874,test,24
 LGBM-Q[no_exog],4,speed,slow,coverage,0.99,0.9825,test,24
 LGBM-Q[no_exog],4,speed,slow,coverage_lt,0.99,0.9825,test,24
 LGBM-Q[no_exog],4,speed,slow,pinball_avg,,0.48313775300749173,test,24
-LGBM-Q[no_exog],4,speed,slow,wape,,0.6593710890337446,test,24
-LGBM-Q[no_exog],4,speed,slow,mase,,0.9524601674635268,test,24
+LGBM-Q[no_exog],4,speed,slow,wape,,0.6593710890337448,test,24
+LGBM-Q[no_exog],4,speed,slow,mase,,0.952460167463527,test,24
 LGBM-Q[no_exog],4,speed,slow,n_series,,176.0,test,24
 LGBM-Q[no_exog],4,demand_type,erratic,pinball,0.5,3.75047301680175,test,24
 LGBM-Q[no_exog],4,demand_type,erratic,coverage,0.5,0.5457777777777778,test,24
@@ -3871,7 +3871,7 @@ LGBM-Q[no_exog],4,demand_type,intermittent,pinball,0.99,0.1271068065492016,test,
 LGBM-Q[no_exog],4,demand_type,intermittent,coverage,0.99,0.9873031026252983,test,24
 LGBM-Q[no_exog],4,demand_type,intermittent,coverage_lt,0.99,0.9873031026252983,test,24
 LGBM-Q[no_exog],4,demand_type,intermittent,pinball_avg,,0.7740518207244583,test,24
-LGBM-Q[no_exog],4,demand_type,intermittent,wape,,0.37742589392940507,test,24
+LGBM-Q[no_exog],4,demand_type,intermittent,wape,,0.377425893929405,test,24
 LGBM-Q[no_exog],4,demand_type,intermittent,mase,,0.8503390615702823,test,24
 LGBM-Q[no_exog],4,demand_type,intermittent,n_series,,419.0,test,24
 LGBM-Q[no_exog],4,demand_type,lumpy,pinball,0.5,1.789311833786791,test,24
@@ -4088,8 +4088,8 @@ LGBM-Q[no_exog],4,demand_type_x_speed,lumpy_fast,pinball,0.99,0.3273748588559458
 LGBM-Q[no_exog],4,demand_type_x_speed,lumpy_fast,coverage,0.99,0.9887640449438202,test,24
 LGBM-Q[no_exog],4,demand_type_x_speed,lumpy_fast,coverage_lt,0.99,0.9887640449438202,test,24
 LGBM-Q[no_exog],4,demand_type_x_speed,lumpy_fast,pinball_avg,,1.7559589896896013,test,24
-LGBM-Q[no_exog],4,demand_type_x_speed,lumpy_fast,wape,,0.3684272133676529,test,24
-LGBM-Q[no_exog],4,demand_type_x_speed,lumpy_fast,mase,,0.6611827681624399,test,24
+LGBM-Q[no_exog],4,demand_type_x_speed,lumpy_fast,wape,,0.36842721336765283,test,24
+LGBM-Q[no_exog],4,demand_type_x_speed,lumpy_fast,mase,,0.6611827681624398,test,24
 LGBM-Q[no_exog],4,demand_type_x_speed,lumpy_fast,n_series,,89.0,test,24
 LGBM-Q[no_exog],4,demand_type_x_speed,lumpy_medium,pinball,0.5,1.2764225385262733,test,24
 LGBM-Q[no_exog],4,demand_type_x_speed,lumpy_medium,coverage,0.5,0.5017241379310344,test,24

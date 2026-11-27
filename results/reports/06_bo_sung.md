@@ -1,16 +1,16 @@
 # Báo cáo GĐ6 – Bổ sung trước khi chốt đồ án
 
 ## 1. Đã làm gì (file tạo/sửa)
-- **Mới**: `src/safety_point.py` (chính sách điểm có hệ số an toàn + q* lưới mở rộng + bootstrap), `src/calibration.py` (bảng hiệu chuẩn rời rạc), `src/ablation.py` (bỏ biến ngoại sinh), `src/mlp_seeds.py` (3 seed + hội tụ), `src/gd6_report_tables.py`, `tests/test_gd6.py` (7 test). Kết quả: `results/safety_point_test.csv`, `q_star_ext_val.csv`, `inventory_sim_{val,test}_ext.csv`, `calibration_table.csv`, `calibration_summary.csv`, `ablation_exog.csv`, `mlp_seeds.csv`, `mlp_nll_curves.csv`, hình `results/figures/mlp_nll_curves.png`.
-- **Sửa (không đổi kết quả chính)**: `src/ml_models.py` (`fit_lgbm(extra_q=...)`, `fit_mlp_nb(seed=, max_epochs=)`, `Qext`), `src/prob_models.py` (`EXT_QGRID`, khóa `Qext`), `src/run_forecasts.py` (lưu `Qext` vào npz), `src/inventory_sim.py` (`--ext`), `configs/config.yaml` (`quantile_grid_ext`, `safety_k_grid`, `mlp_seeds`, `mlp_convergence_epochs`).
+- **Mới**: `src/diem_an_toan.py` (chính sách điểm có hệ số an toàn + q* lưới mở rộng + bootstrap), `src/hieu_chinh.py` (bảng hiệu chuẩn rời rạc), `src/loai_bo_dac_trung.py` (bỏ biến ngoại sinh), `src/mlp_cac_seed.py` (3 seed + hội tụ), `src/bang_bao_cao_gd6.py`, `tests/kiem_thu_gd6.py` (7 test). Kết quả: `results/diem_an_toan_test.csv`, `q_sao_ext_val.csv`, `mo_phong_ton_kho_{val,test}_ext.csv`, `hieu_chinh_bang.csv`, `hieu_chinh_tom_tat.csv`, `loai_bo_bien_ngoai_sinh.csv`, `mlp_cac_seed.csv`, `mlp_duong_nll.csv`, hình `results/figures/mlp_duong_nll.png`.
+- **Sửa (không đổi kết quả chính)**: `src/mo_hinh_ml.py` (`fit_lgbm(extra_q=...)`, `fit_mlp_nb(seed=, max_epochs=)`, `Qext`), `src/mo_hinh_xac_suat.py` (`EXT_QGRID`, khóa `Qext`), `src/chay_du_bao.py` (lưu `Qext` vào npz), `src/mo_phong_ton_kho.py` (`--ext`), `configs/thong_so.yaml` (`quantile_grid_ext`, `safety_k_grid`, `mlp_seeds`, `mlp_convergence_epochs`).
 - **Lưu ý thời điểm**: báo cáo này viết ở GĐ6 và được DỰNG LẠI ở GĐ7 từ kết quả mới (làm tròn LGBM-Q về số nguyên trong mô phỏng; lưới kappa mới; xem `07_sua_loi.md`). Ở GĐ6, chạy lại `run_forecasts` chỉ để sinh `Qext` không đổi kết quả; GĐ7 mới làm đổi nhẹ kết quả của CrostonSBA/TSB/LGBM-PoisNB (kappa) và các số mô phỏng của LGBM-Q (làm tròn).
-- **Mục 1 (yêu cầu dán pytest vào 05)**: `05_final_test.md` có output `pytest -v` nguyên văn ở mục 2; đã thay bằng output mới nhất ở cuối GĐ7 (cùng output với mục 2 của `07_sua_loi.md`).
+- **Mục 1 (yêu cầu dán pytest vào 05)**: `05_kiem_tra_cuoi.md` có output `pytest -v` nguyên văn ở mục 2; đã thay bằng output mới nhất ở cuối GĐ7 (cùng output với mục 2 của `07_sua_loi.md`).
 
 ## 2. Lệnh đã chạy và pytest
 ```
-python -m src.run_forecasts --split val ; python -m src.run_forecasts --split test
-python -m src.inventory_sim --split val --ext ; python -m src.inventory_sim --split test --ext
-python -m src.safety_point ; python -m src.calibration ; python -m src.ablation ; python -m src.mlp_seeds
+python -m src.chay_du_bao --split val ; python -m src.chay_du_bao --split test
+python -m src.mo_phong_ton_kho --split val --ext ; python -m src.mo_phong_ton_kho --split test --ext
+python -m src.diem_an_toan ; python -m src.hieu_chinh ; python -m src.loai_bo_dac_trung ; python -m src.mlp_cac_seed
 python -m pytest -v
 ```
 OUTPUT NGUYÊN VĂN `python -m pytest -v`:
@@ -23,62 +23,62 @@ rootdir: D:\lt\261\PTDLHS\DA
 plugins: anyio-4.15.1, fugue-0.9.7, platformdirs-4.14.0
 collecting ... collected 56 items
 
-tests/test_eda.py::test_load_train_excludes_val PASSED                   [  1%]
-tests/test_eda.py::test_active_rows_drops_pre_launch_days PASSED         [  3%]
-tests/test_eda.py::test_weekday_table_has_seven_rows_and_mean_two PASSED [  5%]
-tests/test_eda.py::test_demand_speed_table_totals PASSED                 [  7%]
-tests/test_final_eval.py::test_group_policy_levels_follow_group_choice PASSED [  8%]
-tests/test_final_eval.py::test_case_levels_point_and_quantile PASSED     [ 10%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_daily_target_date_tracks_horizon_offset PASSED [ 12%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_evaluate_validation_summary_matches_by_date_and_id PASSED [ 14%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_join_rows_do_not_duplicate PASSED [ 16%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_n_samples_changes_quantile_output PASSED [ 17%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_pinball_known_answer PASSED [ 19%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_poisson_distribution_scaling PASSED [ 21%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_sample_total_window_does_not_blow_up_for_zero_mean PASSED [ 23%]
-tests/test_gd6.py::test_k_grid_is_0p5_to_3p0_step_0p1 PASSED             [ 25%]
-tests/test_gd6.py::test_series_cost_matches_hold_plus_ratio_times_lost PASSED [ 26%]
-tests/test_gd6.py::test_mase_scale_uses_train_only_and_equals_hand_calculation PASSED [ 28%]
-tests/test_gd6.py::test_ext_quantiles_below_main_grid_and_monotone PASSED [ 30%]
-tests/test_gd6.py::test_lgbm_ext_quantiles_not_above_first_main_quantile PASSED [ 32%]
-tests/test_gd6.py::test_exog_mask_drops_only_price_snap_event_columns PASSED [ 33%]
-tests/test_gd6.py::test_mlp_seed_changes_weights_but_same_seed_reproduces PASSED [ 35%]
-tests/test_gd7.py::test_lgbm_q_levels_are_nonnegative_integers_and_round_to_nearest PASSED [ 37%]
-tests/test_gd7.py::test_nb_models_are_not_changed_by_rounding PASSED     [ 39%]
-tests/test_gd7.py::test_real_forecasts_levels_used_in_simulation_are_integers PASSED [ 41%]
-tests/test_gd7.py::test_smaller_kappa_gives_narrower_upper_tail_and_spread PASSED [ 42%]
-tests/test_gd7.py::test_effect_mask_drops_only_the_two_effect_columns PASSED [ 44%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[0-2] PASSED [ 46%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[0-3] PASSED [ 48%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[1-2] PASSED [ 50%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[1-3] PASSED [ 51%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[2-2] PASSED [ 53%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[2-3] PASSED [ 55%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[3-2] PASSED [ 57%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[3-3] PASSED [ 58%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[4-2] PASSED [ 60%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[4-3] PASSED [ 62%]
-tests/test_inventory_sim.py::test_constant_demand_matches_hand_calculation PASSED [ 64%]
-tests/test_inventory_sim.py::test_order_accounting_and_inventory_position_after_ordering PASSED [ 66%]
-tests/test_inventory_sim.py::test_costs_nonnegative_and_fill_rate_range_and_monotone_in_level PASSED [ 67%]
-tests/test_inventory_sim.py::test_reproducible_same_inputs PASSED        [ 69%]
-tests/test_outputs.py::test_val_npz_shapes_cover_all_series_and_origins_and_monotone PASSED [ 71%]
-tests/test_outputs.py::test_val_eval_csv_schema_and_coverage_matches_npz PASSED [ 73%]
-tests/test_outputs.py::test_actual_in_npz_equals_window_sum_of_val_demand PASSED [ 75%]
-tests/test_outputs.py::test_md_table_rounds_to_four_decimals PASSED      [ 76%]
-tests/test_outputs.py::test_test_npz_origins_inside_test_split_and_shapes PASSED [ 78%]
-tests/test_prob_models.py::test_pinball_known_answer PASSED              [ 80%]
-tests/test_prob_models.py::test_nb_quantiles_match_scipy_and_cdf_definition PASSED [ 82%]
-tests/test_prob_models.py::test_nb_quantiles_monotone_in_q_and_zero_mean PASSED [ 83%]
-tests/test_prob_models.py::test_legacy_sampler_mean_not_inflated_when_n_below_one PASSED [ 85%]
-tests/test_prob_models.py::test_window_targets_values_and_nan_tail PASSED [ 87%]
-tests/test_prob_models.py::test_origins_window_inside_split PASSED       [ 89%]
-tests/test_prob_models.py::test_croston_tsb_constant_demand PASSED       [ 91%]
-tests/test_prob_models.py::test_no_leak_stat_forecast_and_alpha PASSED   [ 92%]
-tests/test_prob_models.py::test_no_leak_features PASSED                  [ 94%]
-tests/test_prob_models.py::test_estimate_alpha_known_poisson_is_small PASSED [ 96%]
-tests/test_prob_models.py::test_evaluate_forecast_coverage_and_shapes PASSED [ 98%]
-tests/test_prob_models.py::test_lgbm_quantiles_monotone_and_shape PASSED [100%]
+tests/kiem_thu_kham_pha_du_lieu.py::test_load_train_excludes_val PASSED                   [  1%]
+tests/kiem_thu_kham_pha_du_lieu.py::test_active_rows_drops_pre_launch_days PASSED         [  3%]
+tests/kiem_thu_kham_pha_du_lieu.py::test_weekday_table_has_seven_rows_and_mean_two PASSED [  5%]
+tests/kiem_thu_kham_pha_du_lieu.py::test_demand_speed_table_totals PASSED                 [  7%]
+tests/kiem_thu_danh_gia_cuoi.py::test_group_policy_levels_follow_group_choice PASSED [  8%]
+tests/kiem_thu_danh_gia_cuoi.py::test_case_levels_point_and_quantile PASSED     [ 10%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_daily_target_date_tracks_horizon_offset PASSED [ 12%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_evaluate_validation_summary_matches_by_date_and_id PASSED [ 14%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_join_rows_do_not_duplicate PASSED [ 16%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_n_samples_changes_quantile_output PASSED [ 17%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_pinball_known_answer PASSED [ 19%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_poisson_distribution_scaling PASSED [ 21%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_sample_total_window_does_not_blow_up_for_zero_mean PASSED [ 23%]
+tests/kiem_thu_gd6.py::test_k_grid_is_0p5_to_3p0_step_0p1 PASSED             [ 25%]
+tests/kiem_thu_gd6.py::test_series_cost_matches_hold_plus_ratio_times_lost PASSED [ 26%]
+tests/kiem_thu_gd6.py::test_mase_scale_uses_train_only_and_equals_hand_calculation PASSED [ 28%]
+tests/kiem_thu_gd6.py::test_ext_quantiles_below_main_grid_and_monotone PASSED [ 30%]
+tests/kiem_thu_gd6.py::test_lgbm_ext_quantiles_not_above_first_main_quantile PASSED [ 32%]
+tests/kiem_thu_gd6.py::test_exog_mask_drops_only_price_snap_event_columns PASSED [ 33%]
+tests/kiem_thu_gd6.py::test_mlp_seed_changes_weights_but_same_seed_reproduces PASSED [ 35%]
+tests/kiem_thu_gd7.py::test_lgbm_q_levels_are_nonnegative_integers_and_round_to_nearest PASSED [ 37%]
+tests/kiem_thu_gd7.py::test_nb_models_are_not_changed_by_rounding PASSED     [ 39%]
+tests/kiem_thu_gd7.py::test_real_forecasts_levels_used_in_simulation_are_integers PASSED [ 41%]
+tests/kiem_thu_gd7.py::test_smaller_kappa_gives_narrower_upper_tail_and_spread PASSED [ 42%]
+tests/kiem_thu_gd7.py::test_effect_mask_drops_only_the_two_effect_columns PASSED [ 44%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[0-2] PASSED [ 46%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[0-3] PASSED [ 48%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[1-2] PASSED [ 50%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[1-3] PASSED [ 51%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[2-2] PASSED [ 53%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[2-3] PASSED [ 55%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[3-2] PASSED [ 57%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[3-3] PASSED [ 58%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[4-2] PASSED [ 60%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[4-3] PASSED [ 62%]
+tests/kiem_thu_mo_phong_ton_kho.py::test_constant_demand_matches_hand_calculation PASSED [ 64%]
+tests/kiem_thu_mo_phong_ton_kho.py::test_order_accounting_and_inventory_position_after_ordering PASSED [ 66%]
+tests/kiem_thu_mo_phong_ton_kho.py::test_costs_nonnegative_and_fill_rate_range_and_monotone_in_level PASSED [ 67%]
+tests/kiem_thu_mo_phong_ton_kho.py::test_reproducible_same_inputs PASSED        [ 69%]
+tests/kiem_thu_dau_ra.py::test_val_npz_shapes_cover_all_series_and_origins_and_monotone PASSED [ 71%]
+tests/kiem_thu_dau_ra.py::test_val_eval_csv_schema_and_coverage_matches_npz PASSED [ 73%]
+tests/kiem_thu_dau_ra.py::test_actual_in_npz_equals_window_sum_of_val_demand PASSED [ 75%]
+tests/kiem_thu_dau_ra.py::test_md_table_rounds_to_four_decimals PASSED      [ 76%]
+tests/kiem_thu_dau_ra.py::test_test_npz_origins_inside_test_split_and_shapes PASSED [ 78%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_pinball_known_answer PASSED              [ 80%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_nb_quantiles_match_scipy_and_cdf_definition PASSED [ 82%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_nb_quantiles_monotone_in_q_and_zero_mean PASSED [ 83%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_legacy_sampler_mean_not_inflated_when_n_below_one PASSED [ 85%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_window_targets_values_and_nan_tail PASSED [ 87%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_origins_window_inside_split PASSED       [ 89%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_croston_tsb_constant_demand PASSED       [ 91%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_no_leak_stat_forecast_and_alpha PASSED   [ 92%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_no_leak_features PASSED                  [ 94%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_estimate_alpha_known_poisson_is_small PASSED [ 96%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_evaluate_forecast_coverage_and_shapes PASSED [ 98%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_lgbm_quantiles_monotone_and_shape PASSED [100%]
 
 ============================= 56 passed in 12.58s =============================
 ```
@@ -162,7 +162,7 @@ Test, L=2: điểm an toàn k − điểm thuần (k=1):
 | LGBM-PoisNB | -44.40 [-47.43; -41.44] | -18.90 [-21.18; -16.57] | 0.00 [0.00; 0.00] | -22.71 [-27.18; -18.78] | -116.77 [-133.84; -101.17] | -478.08 [-536.20; -426.83] |
 | MLP-NB | -47.78 [-51.37; -44.34] | -22.08 [-24.36; -19.81] | 1.79 [0.61; 3.15] | -15.20 [-18.74; -11.98] | -89.96 [-103.57; -78.35] | -403.09 [-452.87; -359.89] |
 
-(L=3: `results/safety_point_test.csv`.) Đếm ô (7 mô hình × 6 tỷ lệ = 42 ô mỗi L) theo vị trí KTC so với 0:
+(L=3: `results/diem_an_toan_test.csv`.) Đếm ô (7 mô hình × 6 tỷ lệ = 42 ô mỗi L) theo vị trí KTC so với 0:
 | L | so_sanh | KTC<0 (vế đầu rẻ hơn) | KTC chứa 0 | KTC>0 (vế đầu đắt hơn) | tong_o |
 |---|---|---|---|---|---|
 | 2 | k_minus_q | 9 | 10 | 23 | 42 |
@@ -184,7 +184,7 @@ k_minus_q = điểm an toàn − phân vị; q_minus_point = phân vị − đi�
 - Hạn chế: k và q* cùng chọn trên val; một k chung cho mọi chuỗi (k theo nhóm tốc độ: `07_sua_loi.md` mục 3.5); 28 ngày; KTC coi chuỗi độc lập.
 
 ## 4. Mở rộng lưới q xuống 0.3, 0.4 (mục 3)
-Phạm vi: **tất cả 7 mô hình** được mở rộng (không phải chỉ NB): bốn mô hình thống kê, LGBM-PoisNB và MLP-NB dùng cùng mean/alpha đã chốt nên chỉ tính thêm phân vị NB; LGBM-Q huấn luyện thêm 2 mô hình phân vị (0.3 và 0.4; thêm ≈10 giây mỗi H). Lưới tuning/đánh giá chính (9 mức, 0.5–0.99) giữ nguyên để không đổi các kết quả cũ; lưới mở rộng chỉ dùng cho mô phỏng (`inventory_sim_*_ext.csv`). Phân vị LGBM-Q phụ được ép không vượt phân vị q=0.5 và tăng dần.
+Phạm vi: **tất cả 7 mô hình** được mở rộng (không phải chỉ NB): bốn mô hình thống kê, LGBM-PoisNB và MLP-NB dùng cùng mean/alpha đã chốt nên chỉ tính thêm phân vị NB; LGBM-Q huấn luyện thêm 2 mô hình phân vị (0.3 và 0.4; thêm ≈10 giây mỗi H). Lưới tuning/đánh giá chính (9 mức, 0.5–0.99) giữ nguyên để không đổi các kết quả cũ; lưới mở rộng chỉ dùng cho mô phỏng (`mo_phong_ton_kho_*_ext.csv`). Phân vị LGBM-Q phụ được ép không vượt phân vị q=0.5 và tăng dần.
 q* trên val (L=2), tỷ lệ 1–5, lưới chính (main) và lưới mở rộng (ext):
 | model | main_r1 | main_r2 | main_r5 | ext_r1 | ext_r2 | ext_r5 |
 |---|---|---|---|---|---|---|
@@ -299,7 +299,7 @@ test, H=4:
 | LGBM-PoisNB | 0.427 / 0.572 | 0.534 / 0.662 | 0.647 / 0.750 | 0.763 / 0.835 | 0.816 / 0.875 | 0.873 / 0.914 | 0.927 / 0.951 |
 | MLP-NB | 0.409 / 0.579 | 0.502 / 0.662 | 0.606 / 0.743 | 0.715 / 0.822 | 0.780 / 0.862 | 0.846 / 0.904 | 0.918 / 0.945 |
 
-(Bảng dài đầy đủ: `results/calibration_table.csv`.)
+(Bảng dài đầy đủ: `results/hieu_chinh_bang.csv`.)
 
 ## 6. Ablation biến ngoại sinh cho LightGBM-Q (mục 5)
 "Bỏ ngoại sinh" = bỏ giá (price_fut, price_ratio_fut_past28, price_ratio_next_today), SNAP (fut_snap_days), sự kiện (fut_event_days, fut_event_index): 30 → 24 đặc trưng. GIỮ lại lịch sử doanh số, thứ/tháng của ngày dự báo và chỉ số hiệu ứng thứ (fut_wd_index), speed/demand_type. Cùng cấu hình LightGBM, cùng huấn luyện/đánh giá như bản chính ("full" tái hiện đúng số của GĐ2/5).
@@ -356,7 +356,7 @@ Chi tiết từng seed:
 | 44 | 4 | test | 0.6000 | 26 | 1.1374 | 0.3176 | 0.8066 |
 
 Seed 42 tái hiện đúng số của lần chạy chính (val 0.9025 và 1.0929; test 0.9477 và 1.1489, pinball_avg H=3 và H=4). Độ biến thiên theo seed nhỏ (độ lệch chuẩn lớn nhất 0.0058), nhỏ hơn nhiều chênh lệch giữa MLP-NB và Croston/TSB. So với LGBM-Q: val H=3: MLP-NB 0.9014–0.9029 vs LGBM-Q 0.9109 → cả 3 seed tốt hơn LGBM-Q; val H=4: MLP-NB 1.0853–1.0929 vs LGBM-Q 1.0922 → lẫn lộn (một số seed tốt hơn, một số kém hơn); test H=3: MLP-NB 0.9432–0.9477 vs LGBM-Q 0.9354 → cả 3 seed kém hơn LGBM-Q; test H=4: MLP-NB 1.1374–1.1489 vs LGBM-Q 1.1344 → cả 3 seed kém hơn LGBM-Q. Vậy ở H=3 thứ hạng lật val→test ổn định theo seed; ở H=4 trên val MLP-NB và LGBM-Q gần như ngang nhau (lẫn lộn giữa các seed).
-Hội tụ (NLL holdout nội bộ; seed 42; chạy tối đa 80 epoch; `results/figures/mlp_nll_curves.png`):
+Hội tụ (NLL holdout nội bộ; seed 42; chạy tối đa 80 epoch; `results/figures/mlp_duong_nll.png`):
 | H | epoch_tot_nhat(<=80) | NLL_tai_epoch_30 | NLL_tot_nhat | NLL_epoch_80 |
 |---|---|---|---|---|
 | 3.0000 | 58.0000 | 2.1620 | 2.1591 | 2.1621 |
@@ -389,7 +389,7 @@ H=4:
 
 
 ## 9. Chú thích bắt buộc cho bảng theo nhóm (mục 8)
-Đã bổ sung chú thích tỷ lệ chi phí, L và q cho các bảng theo nhóm nhanh/chậm trong `02`, `03`, `04`, `05` và `final_report.md`. Quy ước: bảng sai số dự báo theo nhóm (pinball_avg, WAPE, MASE) tính trên dự báo cửa sổ H=3 và không phụ thuộc tỷ lệ chi phí/L/q (pinball_avg là trung bình 9 mức q); bảng mô phỏng theo nhóm ghi rõ cost_ratio, L và q (hoặc "q*" kèm bảng q*).
+Đã bổ sung chú thích tỷ lệ chi phí, L và q cho các bảng theo nhóm nhanh/chậm trong `02`, `03`, `04`, `05` và `bao_cao_cuoi_cung.md`. Quy ước: bảng sai số dự báo theo nhóm (pinball_avg, WAPE, MASE) tính trên dự báo cửa sổ H=3 và không phụ thuộc tỷ lệ chi phí/L/q (pinball_avg là trung bình 9 mức q); bảng mô phỏng theo nhóm ghi rõ cost_ratio, L và q (hoặc "q*" kèm bảng q*).
 
 ## 10. Cấu hình
 Seed 42 (MLP seed 42/43/44). k_grid 0.5–3.0 bước 0.1; lưới q mở rộng [0.3, 0.4]; bootstrap 2000 lần seed 42. lightgbm 4.7.0, torch 2.15.0+cpu, scipy 1.18.1, numpy 2.5.4, pandas 2.3.3. Thời gian: chạy lại val/test ≈ 9.5 + 4.5 phút, ablation ≈ 4.5 phút, mlp_seeds ≈ 16 phút (CPU 12 luồng).

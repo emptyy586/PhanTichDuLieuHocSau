@@ -1,12 +1,12 @@
 # Báo cáo GĐ8 – DeepAR-style (GRU + Negative Binomial, lấy mẫu tự hồi quy)
 
-> Các mục 0–2 được commit TRƯỚC khi chạy test (commit `GD8: DeepAR-style … đóng băng hparams_deepar.json, cam kết …`); các mục 3 trở đi được dựng sau khi có kết quả test.
+> Các mục 0–2 được commit TRƯỚC khi chạy test (commit `GD8: DeepAR-style … đóng băng sieu_tham_so_deepar.json, cam kết …`); các mục 3 trở đi được dựng sau khi có kết quả test.
 
 ## 0. Cam kết trước khi chạy test (ghi trước, không sửa về sau)
 1. Báo cáo **cả DeepAR lẫn MLP-NB** (và 5 mô hình còn lại) trên val và test **bất kể ai thắng**.
 2. "Mô hình học sâu đề xuất" được chọn **theo pinball trung bình trên VAL** (DeepAR seed 42 vs MLP-NB seed 42, cùng tiêu chí, cùng H=3,4), **không** chọn theo test.
-3. Siêu tham số của DeepAR (hidden, số lớp, context, kappa, số epoch từng seed) được chốt trên val và lưu ở `results/hparams_deepar.json` trước khi chạy test; **không tinh chỉnh vòng hai dựa vào test**. Test chạy đúng một lần cho mỗi seed.
-4. `results/hparams.json` không được sửa (sha256 phải là `8BC7D7507BF0167E83B1D31F831FB8EDB5EDF60C23A742C67B32B0F86366765B`); số liệu của 7 mô hình hiện có không đổi (kiểm bằng sha256 các file cũ trong `results/gd8_baseline_hashes.txt` và test `test_old_result_files_unchanged_since_baseline`).
+3. Siêu tham số của DeepAR (hidden, số lớp, context, kappa, số epoch từng seed) được chốt trên val và lưu ở `results/sieu_tham_so_deepar.json` trước khi chạy test; **không tinh chỉnh vòng hai dựa vào test**. Test chạy đúng một lần cho mỗi seed.
+4. `results/sieu_tham_so.json` không được sửa (sha256 phải là `8BC7D7507BF0167E83B1D31F831FB8EDB5EDF60C23A742C67B32B0F86366765B`); số liệu của 7 mô hình hiện có không đổi (kiểm bằng sha256 các file cũ trong `results/ma_bam_co_so_gd8.txt` và test `test_old_result_files_unchanged_since_baseline`).
 5. Không hiệu chuẩn lại DeepAR sau khi đã thấy test (kappa chọn trên val).
 
 ## 1. Giao thức (giống MLP-NB)
@@ -16,8 +16,8 @@
 - Một mô hình DeepAR duy nhất cho cả H=3 và H=4: huấn luyện với horizon 4 ngày, lấy mẫu H bước tương ứng (khác MLP-NB, vốn huấn luyện một mạng cho mỗi H).
 
 ## 2. Quyết định đã chốt trên VAL (ghi TRƯỚC khi chạy test)
-- Cấu hình DeepAR chọn trên val (pinball_avg val, seed 42, n_samples=300, kappa=1; 8 cấu hình, `results/tuning_log_deepar.csv`): **hidden=64, layers=2, context=112** (pinball_avg 1.0124; cấu hình tốt thứ hai 1.0275). Kappa chọn trên val (lưới 0.25, 0.35, 0.5, 0.75, 1.0, 1.25; `results/tuning_kappa_deepar.csv`): **0.5** (1.0089). Epoch chọn bằng holdout nội bộ: seed 42 → 10, seed 43 → 12, seed 44 → 12 (trần 12).
-- `results/hparams_deepar.json` đã được đóng băng: sha256 = `9b2036d39e56bb8d4211a93a251921229549480084fd48445fa9a1c29fdecd34`. `results/hparams.json` không đổi (`8bc7d7507bf0167e83b1d31f831fb8edb5edf60c23a742c67b32b0f86366765b`).
+- Cấu hình DeepAR chọn trên val (pinball_avg val, seed 42, n_samples=300, kappa=1; 8 cấu hình, `results/nhat_ky_tinh_chinh_deepar.csv`): **hidden=64, layers=2, context=112** (pinball_avg 1.0124; cấu hình tốt thứ hai 1.0275). Kappa chọn trên val (lưới 0.25, 0.35, 0.5, 0.75, 1.0, 1.25; `results/tinh_chinh_kappa_deepar.csv`): **0.5** (1.0089). Epoch chọn bằng holdout nội bộ: seed 42 → 10, seed 43 → 12, seed 44 → 12 (trần 12).
+- `results/sieu_tham_so_deepar.json` đã được đóng băng: sha256 = `9b2036d39e56bb8d4211a93a251921229549480084fd48445fa9a1c29fdecd34`. `results/sieu_tham_so.json` không đổi (`8bc7d7507bf0167e83b1d31f831fb8edb5edf60c23a742c67b32b0f86366765b`).
 - DeepAR val (seed 42, n_samples=500, kappa=0.5): pinball_avg H=3 **0.9147**, H=4 **1.1016**, trung bình hai H **1.0081**. MLP-NB val (seed 42): H=3 0.9025, H=4 1.0929, tiêu chí tuning `avg_pinball` 0.9977. **Theo tiêu chí val, mô hình học sâu đề xuất là MLP-NB** (DeepAR kém hơn ở cả hai H). Quyết định này đã chốt; test không thay đổi nó.
 - Cấu hình tốt nhất nằm ở góc lưới (hidden và context lớn nhất, 2 lớp) nên có thể còn tốt hơn ngoài lưới; không mở rộng vì ngân sách CPU và vì sẽ là tinh chỉnh thêm sau khi đã thấy val (không dựa test).
 
@@ -31,7 +31,7 @@ Hàm mất mát là âm log-hợp lý (r = 1/α):
 
   NLL = − [ lnΓ(y+r) − lnΓ(r) − lnΓ(y+1) + r ln( r/(r+μ) ) + y ln( μ/(r+μ) ) ] ,
 
-được kiểm bằng `scipy.stats.nbinom.logpmf` trong `tests/test_gd8.py`.
+được kiểm bằng `scipy.stats.nbinom.logpmf` trong `tests/kiem_thu_gd8.py`.
 ### 3.2 Huấn luyện
 Mỗi bước huấn luyện lấy một batch (256) cửa sổ ngẫu nhiên (chuỗi i, gốc t) trong 730 ngày gốc gần nhất của giai đoạn huấn luyện (chuỗi phải đã có lần bán tại gốc, nhãn đến gốc+4 nằm trong giai đoạn huấn luyện), gồm C ngày context + 4 ngày dự báo; teacher forcing, NLL trung bình trên mọi bước của cửa sổ; Adam (lr 10⁻³), cắt gradient 1.0; mỗi epoch 20 000 cửa sổ, tối đa 12 epoch. Số epoch chọn bằng NLL trên tập kiểm tra nội bộ (56 gốc cuối của train, purge 4 ngày, 15 000 cửa sổ cố định; chỉ tính trên các bước dự báo) — cùng cách MLP-NB làm. Khi chạy test: huấn luyện lại trên train+val với đúng số epoch đã chọn.
 ### 3.3 Lấy mẫu tự hồi quy
@@ -42,7 +42,7 @@ Phân vị kinh nghiệm kiểu "inverted CDF": Q̂_q(D_H) = mẫu thứ ⌈q·n
 Đầu vào chỉ gồm doanh số ≤ gốc t (kiểm bằng test: đổi doanh số SAU gốc thì mẫu dự báo không đổi, `test_no_leak_future_values_after_origin_do_not_change_forecast`) và covariates đã biết (lịch, SNAP, sự kiện, giá). Không dùng hai cột mã hóa mục tiêu in-sample (fut_wd_index, fut_event_index). Giá trung vị chỉ từ ngày ≤ hết train (cả lúc chạy test). Lưu ý chung cho MỌI mô hình trong dự án (không riêng DeepAR): quy tắc "chưa có lần bán nào tại gốc → dự báo 0" dùng chỉ số ngày bán đầu tiên tính trên toàn bộ dữ liệu (`age_days`), tức biết trước một chuỗi sẽ ra mắt sau gốc; DeepAR dùng cùng quy tắc để so sánh công bằng.
 
 ## 4. Cấu hình, tham số, thời gian
-Cấu hình đã chốt (từ `results/hparams_deepar.json`, sha256 `9b2036d39e56bb8d4211a93a251921229549480084fd48445fa9a1c29fdecd34`; bảng cũng ở `results/tables/deepar_hparams.csv`):
+Cấu hình đã chốt (từ `results/sieu_tham_so_deepar.json`, sha256 `9b2036d39e56bb8d4211a93a251921229549480084fd48445fa9a1c29fdecd34`; bảng cũng ở `results/tables/deepar_sieu_tham_so.csv`):
 | hidden | layers | context | dropout | lr | batch_size | windows_per_epoch | max_epochs | kappa | n_samples | n_params | epochs_seed42/43/44 | train_seconds_seed42/43/44 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 64 | 2 | 112 | 0.1000 | 0.0010 | 256 | 20000 | 12 | 0.5000 | 500 | 48954 | 10/12/12 | 775/564/560 |
@@ -73,7 +73,7 @@ Chọn kappa (cấu hình tốt nhất, n_samples=300):
 Cấu hình tốt nhất là cấu hình LỚN NHẤT trong lưới (hidden 64, 2 lớp, context 112) và còn đang giảm theo kích thước, nên có thể còn tốt hơn ngoài lưới (không mở rộng vì ngân sách CPU).
 
 ## 5. Kết quả dự báo (val và test, 8 mô hình)
-**Con số "chính" trong mọi bảng so sánh của DeepAR và MLP-NB là SEED 42 (một seed, không phải trung bình hay ensemble)**, cho CẢ HAI mô hình. (a)+(b) Seed 42 được chốt TRƯỚC khi thấy kết quả: đây là phần tử đầu của `mlp_seeds` trong `configs/config.yaml` (cố định từ GĐ6, trước DeepAR), MLP-NB dùng seed 42 làm mô hình chính từ GĐ2 (`hparams.json`), và mã DeepAR dùng `seeds[0]` ngay từ lần viết đầu (tuning và mô hình chính đều seed 42); không chọn seed theo val hay test. Seed 43, 44 chỉ để đo độ ổn định. Khác biệt cần nhớ: kappa của MLP-NB chọn riêng cho từng seed (seed 42: 0.5; seed 43, 44: 0.6), kappa của DeepAR chọn một lần theo seed 42 (0.5) rồi dùng cho cả 3 seed; epoch chọn riêng từng seed ở cả hai mô hình. Dưới mỗi bảng có thêm dòng TRUNG BÌNH 3 SEED ± độ lệch chuẩn (ddof=1) cho cả DeepAR và MLP-NB, tính cùng cách (mean ± sd của chỉ số tổng thể trên 3 seed). pinball_avg = trung bình pinball trên 9 mức q (lưới chính); WAPE trên trung bình cửa sổ (DeepAR: trung bình mẫu); MASE scale chỉ train. Các số của 7 mô hình cũ là số cũ, không đổi.
+**Con số "chính" trong mọi bảng so sánh của DeepAR và MLP-NB là SEED 42 (một seed, không phải trung bình hay ensemble)**, cho CẢ HAI mô hình. (a)+(b) Seed 42 được chốt TRƯỚC khi thấy kết quả: đây là phần tử đầu của `mlp_seeds` trong `configs/thong_so.yaml` (cố định từ GĐ6, trước DeepAR), MLP-NB dùng seed 42 làm mô hình chính từ GĐ2 (`sieu_tham_so.json`), và mã DeepAR dùng `seeds[0]` ngay từ lần viết đầu (tuning và mô hình chính đều seed 42); không chọn seed theo val hay test. Seed 43, 44 chỉ để đo độ ổn định. Khác biệt cần nhớ: kappa của MLP-NB chọn riêng cho từng seed (seed 42: 0.5; seed 43, 44: 0.6), kappa của DeepAR chọn một lần theo seed 42 (0.5) rồi dùng cho cả 3 seed; epoch chọn riêng từng seed ở cả hai mô hình. Dưới mỗi bảng có thêm dòng TRUNG BÌNH 3 SEED ± độ lệch chuẩn (ddof=1) cho cả DeepAR và MLP-NB, tính cùng cách (mean ± sd của chỉ số tổng thể trên 3 seed). pinball_avg = trung bình pinball trên 9 mức q (lưới chính); WAPE trên trung bình cửa sổ (DeepAR: trung bình mẫu); MASE scale chỉ train. Các số của 7 mô hình cũ là số cũ, không đổi.
 H=3:
 | model | pinball_avg_val | pinball_avg_test | wape_val | wape_test | mase_val | mase_test |
 |---|---|---|---|---|---|---|
@@ -136,7 +136,7 @@ Chi tiết từng seed của DeepAR:
 
 
 ### 5.1 Làm rõ seed và bảng trung bình 3 seed (GĐ8b)
-**Con số "chính" trong mọi bảng so sánh của DeepAR và MLP-NB là SEED 42 (một seed, không phải trung bình hay ensemble)**, cho CẢ HAI mô hình. (b) Seed 42 được chốt TRƯỚC khi thấy kết quả: đây là phần tử đầu của `mlp_seeds` trong `configs/config.yaml` (cố định từ GĐ6, trước DeepAR), MLP-NB dùng seed 42 làm mô hình chính từ GĐ2 (`hparams.json`), và mã DeepAR dùng `seeds[0]` ngay từ lần viết đầu (tuning và mô hình chính đều seed 42); không chọn seed theo val hay test. Seed 43, 44 chỉ để đo độ ổn định. Khác biệt cần nhớ: kappa của MLP-NB chọn riêng cho từng seed (seed 42: 0.5; seed 43, 44: 0.6), kappa của DeepAR chọn một lần theo seed 42 (0.5) rồi dùng cho cả 3 seed; epoch chọn riêng từng seed ở cả hai mô hình.
+**Con số "chính" trong mọi bảng so sánh của DeepAR và MLP-NB là SEED 42 (một seed, không phải trung bình hay ensemble)**, cho CẢ HAI mô hình. (b) Seed 42 được chốt TRƯỚC khi thấy kết quả: đây là phần tử đầu của `mlp_seeds` trong `configs/thong_so.yaml` (cố định từ GĐ6, trước DeepAR), MLP-NB dùng seed 42 làm mô hình chính từ GĐ2 (`sieu_tham_so.json`), và mã DeepAR dùng `seeds[0]` ngay từ lần viết đầu (tuning và mô hình chính đều seed 42); không chọn seed theo val hay test. Seed 43, 44 chỉ để đo độ ổn định. Khác biệt cần nhớ: kappa của MLP-NB chọn riêng cho từng seed (seed 42: 0.5; seed 43, 44: 0.6), kappa của DeepAR chọn một lần theo seed 42 (0.5) rồi dùng cho cả 3 seed; epoch chọn riêng từng seed ở cả hai mô hình.
 Trung bình ± sd 3 seed của pinball_avg (cùng cách tính cho hai mô hình; số seed 42 và các số khác trong báo cáo KHÔNG đổi):
 
 | Chỉ số | DeepAR | MLP-NB | DeepAR − MLP-NB (trung bình seed) |
@@ -164,7 +164,7 @@ test:
 | LGBM-Q | 1.5358 | 0.6139 | 0.4098 | 0.2916 | 0.5148 | 0.7447 | 0.6773 | 0.8066 | 0.9546 |
 | TSB | 1.8410 | 0.6576 | 0.4278 | 0.3372 | 0.5336 | 0.7494 | 0.7524 | 0.8352 | 0.9581 |
 
-(H=4: `results/deepar_forecast_by_speed.csv`.)
+(H=4: `results/deepar_du_bao_theo_toc_do.csv`.)
 **Hiệu chuẩn của DeepAR (chưa hiệu chuẩn lại sau khi thấy test)**: số q (trên 7 mức q ≤ 0.95) nằm trong khoảng [P(y<q̂), P(y≤q̂)] chặt (in_bracket), nới ±0.05 (in_bracket_tol) và thỏa |P(y≤q̂)−q|≤0.05 (abs_dev_ok):
 | split | H | model | n_q | in_bracket | in_bracket_tol | abs_dev_ok |
 |---|---|---|---|---|---|---|
@@ -216,7 +216,7 @@ L=3 (H=4):
 | MLP-NB | 0.7000 | 0.8695 | 270.0267 | 0.8633 | 278.5772 | 6.0336 | 1 | 1 |
 | DeepAR | 0.7000 | 0.8701 | 272.7813 | 0.8436 | 287.6950 | 5.7969 | 2 | 4 |
 
-Hạng (1 = chi phí thấp nhất trong 8 mô hình): DeepAR L=2 hạng val 3 / test 4; L=3 hạng val 2 / test 4. Hình cập nhật (lưới chính, như bản cũ, thêm DeepAR): `results/figures/policy_total_cost_by_q.png`, `policy_tradeoff_fill_vs_inventory.png`. Bảng q* mọi tỷ lệ: `results/q_star_with_deepar.csv`. Mô phỏng chỉ cho DeepAR: `results/inventory_sim_deepar_{val,test}[_ext].csv` (các file mô phỏng của 7 mô hình cũ không bị ghi lại; kiểm bằng hash và hàm `old_rows_identical`). `safety_point` (điểm có hệ số an toàn) KHÔNG chạy cho DeepAR vì câu hỏi 1 và 2 là câu hỏi về phương pháp và không đổi theo mô hình bổ sung.
+Hạng (1 = chi phí thấp nhất trong 8 mô hình): DeepAR L=2 hạng val 3 / test 4; L=3 hạng val 2 / test 4. Hình cập nhật (lưới chính, như bản cũ, thêm DeepAR): `results/figures/chinh_sach_tong_chi_phi_theo_q.png`, `chinh_sach_danh_doi_fill_ton_kho.png`. Bảng q* mọi tỷ lệ: `results/q_sao_co_deepar.csv`. Mô phỏng chỉ cho DeepAR: `results/mo_phong_ton_kho_deepar_{val,test}[_ext].csv` (các file mô phỏng của 7 mô hình cũ không bị ghi lại; kiểm bằng hash và hàm `old_rows_identical`). `safety_point` (điểm có hệ số an toàn) KHÔNG chạy cho DeepAR vì câu hỏi 1 và 2 là câu hỏi về phương pháp và không đổi theo mô hình bổ sung.
 
 ## 7. So sánh có khoảng tin cậy (bootstrap theo chuỗi, 2000 lần, seed 42, ghép cặp)
 **Pinball_avg (DeepAR − đối thủ; âm = DeepAR tốt hơn; trung bình theo chuỗi trên các gốc và mọi q lưới chính):**
@@ -262,7 +262,7 @@ tỷ lệ 20:
 | DeepAR - TSB | 2 | -21.99 [-29.22; -15.15] | -13.53 [-20.49; -6.24] |
 | DeepAR - TSB | 3 | -20.72 [-27.82; -13.91] | -9.81 [-17.42; -1.78] |
 
-Theo nhóm tốc độ, L=2, tỷ lệ 10 (q* theo cột q_DeepAR/q_other trong `results/deepar_bootstrap_cost.csv`):
+Theo nhóm tốc độ, L=2, tỷ lệ 10 (q* theo cột q_DeepAR/q_other trong `results/deepar_bootstrap_chi_phi.csv`):
 | so_sanh | group | val | test |
 |---|---|---|---|
 | DeepAR - LGBM-Q | fast | -1.42 [-7.90; 4.75] | 14.79 [3.79; 28.07] |
@@ -300,14 +300,14 @@ tỷ lệ 20:
 
 ## 9. Hạn chế
 - Chỉ 28 ngày val, 28 ngày test, một cửa hàng, một phòng ban; KTC bootstrap coi các chuỗi độc lập.
-- Huấn luyện CPU với ngân sách nhỏ: tối đa 12 epoch × 20 000 cửa sổ (≈ 0.4 lần số cặp huấn luyện mỗi epoch); lưới chỉ 8 cấu hình và cấu hình tốt nhất nằm ở góc lưới; hai trong ba seed chạm trần 12 epoch → DeepAR có thể chưa hội tụ hoàn toàn (xem `results/figures/deepar_nll_curves.png`). Kết luận "DeepAR không hơn MLP-NB/LightGBM" chỉ áp dụng cho cấu hình và ngân sách này.
+- Huấn luyện CPU với ngân sách nhỏ: tối đa 12 epoch × 20 000 cửa sổ (≈ 0.4 lần số cặp huấn luyện mỗi epoch); lưới chỉ 8 cấu hình và cấu hình tốt nhất nằm ở góc lưới; hai trong ba seed chạm trần 12 epoch → DeepAR có thể chưa hội tụ hoàn toàn (xem `results/figures/deepar_duong_nll.png`). Kết luận "DeepAR không hơn MLP-NB/LightGBM" chỉ áp dụng cho cấu hình và ngân sách này.
 - Phân vị lấy từ 500 mẫu (sai số lấy mẫu ở q=0.99 lớn); một mô hình dùng cho cả hai H (khác MLP-NB); kappa=0.5 chọn trên val (thu hẹp độ phân tán, lưu ý DeepAR thuần với kappa=1 kém hơn: bảng kappa).
 - Quy tắc "chưa có lần bán → dự báo 0" dùng thông tin ngày ra mắt của toàn bộ dữ liệu (chung cho mọi mô hình; mục 3.5).
 - Chưa có đối chứng "DeepAR không covariates ngoại sinh" hay GRU không embedding; chưa chạy `safety_point` cho DeepAR.
 
 ## 10. Kiểm thử, hash và lệnh
-Lệnh: `python -m src.deepar --stage tune_one --cfg-id K` (K=0..7, song song), `--stage select`, `--stage seed_val --seed S`, `--stage freeze`, `--stage seed_test --seed S`, `--stage collect_test`, rồi `python -m src.deepar_analysis --what sim` và `--what tables`.
-sha256 `results/hparams.json` = `8bc7d7507bf0167e83b1d31f831fb8edb5edf60c23a742c67b32b0f86366765b` (không đổi so với `8BC7D750…765B`); `results/hparams_deepar.json` = `9b2036d39e56bb8d4211a93a251921229549480084fd48445fa9a1c29fdecd34`.
+Lệnh: `python -m src.deepar --stage tune_one --cfg-id K` (K=0..7, song song), `--stage select`, `--stage seed_val --seed S`, `--stage freeze`, `--stage seed_test --seed S`, `--stage collect_test`, rồi `python -m src.deepar_phan_tich --what sim` và `--what tables`.
+sha256 `results/sieu_tham_so.json` = `8bc7d7507bf0167e83b1d31f831fb8edb5edf60c23a742c67b32b0f86366765b` (không đổi so với `8BC7D750…765B`); `results/sieu_tham_so_deepar.json` = `9b2036d39e56bb8d4211a93a251921229549480084fd48445fa9a1c29fdecd34`.
 OUTPUT NGUYÊN VĂN `python -m pytest -v`:
 ```
 ============================= test session starts =============================
@@ -318,74 +318,74 @@ rootdir: D:\lt\261\PTDLHS\DA
 plugins: anyio-4.15.1, fugue-0.9.7, platformdirs-4.14.0
 collecting ... collected 64 items
 
-tests/test_eda.py::test_load_train_excludes_val PASSED                   [  1%]
-tests/test_eda.py::test_active_rows_drops_pre_launch_days PASSED         [  3%]
-tests/test_eda.py::test_weekday_table_has_seven_rows_and_mean_two PASSED [  4%]
-tests/test_eda.py::test_demand_speed_table_totals PASSED                 [  6%]
-tests/test_final_eval.py::test_group_policy_levels_follow_group_choice PASSED [  7%]
-tests/test_final_eval.py::test_case_levels_point_and_quantile PASSED     [  9%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_daily_target_date_tracks_horizon_offset PASSED [ 10%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_evaluate_validation_summary_matches_by_date_and_id PASSED [ 12%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_join_rows_do_not_duplicate PASSED [ 14%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_n_samples_changes_quantile_output PASSED [ 15%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_pinball_known_answer PASSED [ 17%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_poisson_distribution_scaling PASSED [ 18%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_sample_total_window_does_not_blow_up_for_zero_mean PASSED [ 20%]
-tests/test_gd6.py::test_k_grid_is_0p5_to_3p0_step_0p1 PASSED             [ 21%]
-tests/test_gd6.py::test_series_cost_matches_hold_plus_ratio_times_lost PASSED [ 23%]
-tests/test_gd6.py::test_mase_scale_uses_train_only_and_equals_hand_calculation PASSED [ 25%]
-tests/test_gd6.py::test_ext_quantiles_below_main_grid_and_monotone PASSED [ 26%]
-tests/test_gd6.py::test_lgbm_ext_quantiles_not_above_first_main_quantile PASSED [ 28%]
-tests/test_gd6.py::test_exog_mask_drops_only_price_snap_event_columns PASSED [ 29%]
-tests/test_gd6.py::test_mlp_seed_changes_weights_but_same_seed_reproduces PASSED [ 31%]
-tests/test_gd7.py::test_lgbm_q_levels_are_nonnegative_integers_and_round_to_nearest PASSED [ 32%]
-tests/test_gd7.py::test_nb_models_are_not_changed_by_rounding PASSED     [ 34%]
-tests/test_gd7.py::test_real_forecasts_levels_used_in_simulation_are_integers PASSED [ 35%]
-tests/test_gd7.py::test_smaller_kappa_gives_narrower_upper_tail_and_spread PASSED [ 37%]
-tests/test_gd7.py::test_effect_mask_drops_only_the_two_effect_columns PASSED [ 39%]
-tests/test_gd8.py::test_nb_nll_matches_scipy_logpmf PASSED               [ 40%]
-tests/test_gd8.py::test_no_leak_future_values_after_origin_do_not_change_forecast PASSED [ 42%]
-tests/test_gd8.py::test_same_seed_same_result_different_seed_different_weights PASSED [ 43%]
-tests/test_gd8.py::test_first_step_sample_mean_matches_mu PASSED         [ 45%]
-tests/test_gd8.py::test_forecast_schema_integer_nonnegative_monotone PASSED [ 46%]
-tests/test_gd8.py::test_sample_quantile_is_inverted_cdf PASSED           [ 48%]
-tests/test_gd8.py::test_old_result_files_unchanged_since_baseline PASSED [ 50%]
-tests/test_gd8.py::test_hparams_json_frozen PASSED                       [ 51%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[0-2] PASSED [ 53%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[0-3] PASSED [ 54%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[1-2] PASSED [ 56%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[1-3] PASSED [ 57%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[2-2] PASSED [ 59%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[2-3] PASSED [ 60%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[3-2] PASSED [ 62%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[3-3] PASSED [ 64%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[4-2] PASSED [ 65%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[4-3] PASSED [ 67%]
-tests/test_inventory_sim.py::test_constant_demand_matches_hand_calculation PASSED [ 68%]
-tests/test_inventory_sim.py::test_order_accounting_and_inventory_position_after_ordering PASSED [ 70%]
-tests/test_inventory_sim.py::test_costs_nonnegative_and_fill_rate_range_and_monotone_in_level PASSED [ 71%]
-tests/test_inventory_sim.py::test_reproducible_same_inputs PASSED        [ 73%]
-tests/test_outputs.py::test_val_npz_shapes_cover_all_series_and_origins_and_monotone PASSED [ 75%]
-tests/test_outputs.py::test_val_eval_csv_schema_and_coverage_matches_npz PASSED [ 76%]
-tests/test_outputs.py::test_actual_in_npz_equals_window_sum_of_val_demand PASSED [ 78%]
-tests/test_outputs.py::test_md_table_rounds_to_four_decimals PASSED      [ 79%]
-tests/test_outputs.py::test_test_npz_origins_inside_test_split_and_shapes PASSED [ 81%]
-tests/test_prob_models.py::test_pinball_known_answer PASSED              [ 82%]
-tests/test_prob_models.py::test_nb_quantiles_match_scipy_and_cdf_definition PASSED [ 84%]
-tests/test_prob_models.py::test_nb_quantiles_monotone_in_q_and_zero_mean PASSED [ 85%]
-tests/test_prob_models.py::test_legacy_sampler_mean_not_inflated_when_n_below_one PASSED [ 87%]
-tests/test_prob_models.py::test_window_targets_values_and_nan_tail PASSED [ 89%]
-tests/test_prob_models.py::test_origins_window_inside_split PASSED       [ 90%]
-tests/test_prob_models.py::test_croston_tsb_constant_demand PASSED       [ 92%]
-tests/test_prob_models.py::test_no_leak_stat_forecast_and_alpha PASSED   [ 93%]
-tests/test_prob_models.py::test_no_leak_features PASSED                  [ 95%]
-tests/test_prob_models.py::test_estimate_alpha_known_poisson_is_small PASSED [ 96%]
-tests/test_prob_models.py::test_evaluate_forecast_coverage_and_shapes PASSED [ 98%]
-tests/test_prob_models.py::test_lgbm_quantiles_monotone_and_shape PASSED [100%]
+tests/kiem_thu_kham_pha_du_lieu.py::test_load_train_excludes_val PASSED                   [  1%]
+tests/kiem_thu_kham_pha_du_lieu.py::test_active_rows_drops_pre_launch_days PASSED         [  3%]
+tests/kiem_thu_kham_pha_du_lieu.py::test_weekday_table_has_seven_rows_and_mean_two PASSED [  4%]
+tests/kiem_thu_kham_pha_du_lieu.py::test_demand_speed_table_totals PASSED                 [  6%]
+tests/kiem_thu_danh_gia_cuoi.py::test_group_policy_levels_follow_group_choice PASSED [  7%]
+tests/kiem_thu_danh_gia_cuoi.py::test_case_levels_point_and_quantile PASSED     [  9%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_daily_target_date_tracks_horizon_offset PASSED [ 10%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_evaluate_validation_summary_matches_by_date_and_id PASSED [ 12%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_join_rows_do_not_duplicate PASSED [ 14%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_n_samples_changes_quantile_output PASSED [ 15%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_pinball_known_answer PASSED [ 17%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_poisson_distribution_scaling PASSED [ 18%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_sample_total_window_does_not_blow_up_for_zero_mean PASSED [ 20%]
+tests/kiem_thu_gd6.py::test_k_grid_is_0p5_to_3p0_step_0p1 PASSED             [ 21%]
+tests/kiem_thu_gd6.py::test_series_cost_matches_hold_plus_ratio_times_lost PASSED [ 23%]
+tests/kiem_thu_gd6.py::test_mase_scale_uses_train_only_and_equals_hand_calculation PASSED [ 25%]
+tests/kiem_thu_gd6.py::test_ext_quantiles_below_main_grid_and_monotone PASSED [ 26%]
+tests/kiem_thu_gd6.py::test_lgbm_ext_quantiles_not_above_first_main_quantile PASSED [ 28%]
+tests/kiem_thu_gd6.py::test_exog_mask_drops_only_price_snap_event_columns PASSED [ 29%]
+tests/kiem_thu_gd6.py::test_mlp_seed_changes_weights_but_same_seed_reproduces PASSED [ 31%]
+tests/kiem_thu_gd7.py::test_lgbm_q_levels_are_nonnegative_integers_and_round_to_nearest PASSED [ 32%]
+tests/kiem_thu_gd7.py::test_nb_models_are_not_changed_by_rounding PASSED     [ 34%]
+tests/kiem_thu_gd7.py::test_real_forecasts_levels_used_in_simulation_are_integers PASSED [ 35%]
+tests/kiem_thu_gd7.py::test_smaller_kappa_gives_narrower_upper_tail_and_spread PASSED [ 37%]
+tests/kiem_thu_gd7.py::test_effect_mask_drops_only_the_two_effect_columns PASSED [ 39%]
+tests/kiem_thu_gd8.py::test_nb_nll_matches_scipy_logpmf PASSED               [ 40%]
+tests/kiem_thu_gd8.py::test_no_leak_future_values_after_origin_do_not_change_forecast PASSED [ 42%]
+tests/kiem_thu_gd8.py::test_same_seed_same_result_different_seed_different_weights PASSED [ 43%]
+tests/kiem_thu_gd8.py::test_first_step_sample_mean_matches_mu PASSED         [ 45%]
+tests/kiem_thu_gd8.py::test_forecast_schema_integer_nonnegative_monotone PASSED [ 46%]
+tests/kiem_thu_gd8.py::test_sample_quantile_is_inverted_cdf PASSED           [ 48%]
+tests/kiem_thu_gd8.py::test_old_result_files_unchanged_since_baseline PASSED [ 50%]
+tests/kiem_thu_gd8.py::test_hparams_json_frozen PASSED                       [ 51%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[0-2] PASSED [ 53%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[0-3] PASSED [ 54%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[1-2] PASSED [ 56%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[1-3] PASSED [ 57%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[2-2] PASSED [ 59%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[2-3] PASSED [ 60%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[3-2] PASSED [ 62%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[3-3] PASSED [ 64%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[4-2] PASSED [ 65%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[4-3] PASSED [ 67%]
+tests/kiem_thu_mo_phong_ton_kho.py::test_constant_demand_matches_hand_calculation PASSED [ 68%]
+tests/kiem_thu_mo_phong_ton_kho.py::test_order_accounting_and_inventory_position_after_ordering PASSED [ 70%]
+tests/kiem_thu_mo_phong_ton_kho.py::test_costs_nonnegative_and_fill_rate_range_and_monotone_in_level PASSED [ 71%]
+tests/kiem_thu_mo_phong_ton_kho.py::test_reproducible_same_inputs PASSED        [ 73%]
+tests/kiem_thu_dau_ra.py::test_val_npz_shapes_cover_all_series_and_origins_and_monotone PASSED [ 75%]
+tests/kiem_thu_dau_ra.py::test_val_eval_csv_schema_and_coverage_matches_npz PASSED [ 76%]
+tests/kiem_thu_dau_ra.py::test_actual_in_npz_equals_window_sum_of_val_demand PASSED [ 78%]
+tests/kiem_thu_dau_ra.py::test_md_table_rounds_to_four_decimals PASSED      [ 79%]
+tests/kiem_thu_dau_ra.py::test_test_npz_origins_inside_test_split_and_shapes PASSED [ 81%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_pinball_known_answer PASSED              [ 82%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_nb_quantiles_match_scipy_and_cdf_definition PASSED [ 84%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_nb_quantiles_monotone_in_q_and_zero_mean PASSED [ 85%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_legacy_sampler_mean_not_inflated_when_n_below_one PASSED [ 87%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_window_targets_values_and_nan_tail PASSED [ 89%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_origins_window_inside_split PASSED       [ 90%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_croston_tsb_constant_demand PASSED       [ 92%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_no_leak_stat_forecast_and_alpha PASSED   [ 93%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_no_leak_features PASSED                  [ 95%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_estimate_alpha_known_poisson_is_small PASSED [ 96%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_evaluate_forecast_coverage_and_shapes PASSED [ 98%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_lgbm_quantiles_monotone_and_shape PASSED [100%]
 
 ============================== warnings summary ===============================
-tests/test_gd8.py::test_first_step_sample_mean_matches_mu
-  D:\lt\261\PTDLHS\DA\tests\test_gd8.py:75: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+tests/kiem_thu_gd8.py::test_first_step_sample_mean_matches_mu
+  D:\lt\261\PTDLHS\DA\tests\kiem_thu_gd8.py:75: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
   Consider using tensor.detach() first. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\autograd\generated\python_variable_methods.cpp:821.)
     assert abs(float(s.mean()) - float(mu)) / float(mu) < 0.05
 

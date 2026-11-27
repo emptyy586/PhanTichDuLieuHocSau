@@ -1,6 +1,6 @@
 """DeepAR-style (GRU + đầu Negative Binomial, lấy mẫu tự hồi quy) cho tổng nhu cầu cửa sổ D_H(t) = y[t+1] + … + y[t+H].
 
-Giao thức giống MLP-NB (src/ml_models.py, src/run_forecasts.py, src/mlp_seeds.py): cùng chia train/val/test, cùng gốc dự báo
+Giao thức giống MLP-NB (src/mo_hinh_ml.py, src/chay_du_bao.py, src/mlp_cac_seed.py): cùng chia train/val/test, cùng gốc dự báo
 (origins_for_split), H = L + R ∈ {3, 4}; epoch chọn bằng tập kiểm tra nội bộ (56 gốc cuối của train, purge H ngày); siêu tham số chọn trên
 VAL bằng pinball trung bình trên lưới phân vị chính × cả hai H; khi chạy test huấn luyện lại trên train+val với siêu tham số/epoch đã chốt.
 
@@ -9,7 +9,7 @@ trung vị TRAIN của chuỗi, cờ giá thiếu). KHÔNG có doanh số tươn
 scale = 1 + mean(y trong context đến gốc). Đầu ra: mu = scale * softplus(.), alpha = softplus(.) + 1e-3; NLL của NB(mu, alpha).
 
     python -m src.deepar --stage tune_one --cfg-id K   # (K=0..7, chạy song song) huấn luyện + chấm điểm 1 cấu hình trên val
-    python -m src.deepar --stage select                # chọn cấu hình + kappa trên val, ghi results/hparams_deepar.json
+    python -m src.deepar --stage select                # chọn cấu hình + kappa trên val, ghi results/sieu_tham_so_deepar.json
     python -m src.deepar --stage seed_val --seed S     # 3 seed, dự báo val; sau đó --stage freeze (đóng băng epoch từng seed)
     python -m src.deepar --stage seed_test --seed S    # TEST, chạy MỘT lần mỗi seed với siêu tham số đã chốt; rồi --stage collect_test
 """
@@ -24,14 +24,14 @@ import numpy as np
 import pandas as pd
 import torch
 
-from src.prob_models import (CONFIG, EXT_QGRID, QGRID, Panel, avg_pinball, evaluate_forecast, load_panel, origins_for_split, window_targets)
-from src.tuning import horizons
-from src.utils import ROOT
+from src.mo_hinh_xac_suat import (CONFIG, EXT_QGRID, QGRID, Panel, avg_pinball, evaluate_forecast, load_panel, origins_for_split, window_targets)
+from src.tinh_chinh import horizons
+from src.tien_ich import ROOT
 
 N_COV = 15  # 7 thứ + 2 tháng + 2 ngày-trong-tháng + SNAP + sự kiện + giá tương đối + giá thiếu
 EMB_DIM = 8
 H_MAX = 4
-HPARAMS_PATH = ROOT / "results" / "hparams_deepar.json"
+HPARAMS_PATH = ROOT / "results" / "sieu_tham_so_deepar.json"
 CACHE_DIR = ROOT / "results" / "deepar_cache"
 
 
@@ -342,13 +342,13 @@ def stage_tune_one(cfg_id: int) -> None:
 
 
 def stage_select() -> None:
-    """Chọn cấu hình tốt nhất theo pinball_avg VAL; chọn kappa (lưới config) cho cấu hình đó; ghi tuning_log_deepar.csv, hparams_deepar.json."""
+    """Chọn cấu hình tốt nhất theo pinball_avg VAL; chọn kappa (lưới config) cho cấu hình đó; ghi nhat_ky_tinh_chinh_deepar.csv, sieu_tham_so_deepar.json."""
     panel = load_panel()
     last = panel.val_start - 1
     data = Data(panel, last)
     rows = [json.loads((CACHE_DIR / f"tune_row_{k}.json").read_text(encoding="utf-8")) for k in range(len(config_grid()))]
     log = pd.DataFrame(rows)
-    log.to_csv(ROOT / "results" / "tuning_log_deepar.csv", index=False)
+    log.to_csv(ROOT / "results" / "nhat_ky_tinh_chinh_deepar.csv", index=False)
     best_k = int(log.sort_values("pinball_avg_val").iloc[0].cfg_id)
     m = load_model(panel, f"tune_cfg{best_k}")
     seed = int(CONFIG["mlp_seeds"][0])
@@ -357,7 +357,7 @@ def stage_select() -> None:
         fc = forecast_deepar(m, data, panel, "val", int(CONFIG["deepar_tune_samples"]), kappa, seed)
         kap.append({"kappa": kappa, "pinball_avg_val": _score(panel, fc)})
         print(kap[-1], flush=True)
-    pd.DataFrame(kap).to_csv(ROOT / "results" / "tuning_kappa_deepar.csv", index=False)
+    pd.DataFrame(kap).to_csv(ROOT / "results" / "tinh_chinh_kappa_deepar.csv", index=False)
     kappa_best = min(kap, key=lambda r: r["pinball_avg_val"])["kappa"]
     HPARAMS_PATH.write_text(json.dumps({"config": m["cfg"], "cfg_id": best_k, "kappa": kappa_best, "n_samples": int(CONFIG["deepar_n_samples"]), "n_params": m["n_params"],
                                         "selection": f"pinball trung bình mọi q (lưới chính) và cả H trên VAL, seed {seed}, n_samples={int(CONFIG['deepar_tune_samples'])}",
@@ -386,7 +386,7 @@ def stage_seed_val(seed: int) -> None:
                      "sample_seconds": round(time.time() - t0, 1), "n_params": m["n_params"]})
         if seed == int(CONFIG["mlp_seeds"][0]):
             ev_all = pd.concat([evaluate_forecast("DeepAR", Hh, panel, origins_for_split(panel, "val", Hh), fc[Hh]) for Hh in horizons()], ignore_index=True)
-            ev_all.to_csv(ROOT / "results" / "forecast_eval_deepar_val_all.csv", index=False)
+            ev_all.to_csv(ROOT / "results" / "danh_gia_du_bao_deepar_val_all.csv", index=False)
             _save_npz(ROOT / "results" / "forecasts" / "deepar_val.npz", panel, fc)
     pd.DataFrame(rows).to_csv(CACHE_DIR / f"seed_rows_val_{seed}.csv", index=False)
     pd.DataFrame([{"seed": seed, **r} for r in m["curves"]]).to_csv(CACHE_DIR / f"curves_{seed}.csv", index=False)
@@ -394,19 +394,19 @@ def stage_seed_val(seed: int) -> None:
 
 
 def stage_freeze() -> None:
-    """Gom 3 seed val vào deepar_seeds.csv/deepar_nll_curves.csv và ghi epoch từng seed vào hparams_deepar.json (ĐÓNG BĂNG trước khi chạy test)."""
+    """Gom 3 seed val vào deepar_cac_seed.csv/deepar_duong_nll.csv và ghi epoch từng seed vào sieu_tham_so_deepar.json (ĐÓNG BĂNG trước khi chạy test)."""
     hp = json.loads(HPARAMS_PATH.read_text(encoding="utf-8"))
     seeds = [int(s) for s in CONFIG["mlp_seeds"]]
     rows = pd.concat([pd.read_csv(CACHE_DIR / f"seed_rows_val_{s}.csv") for s in seeds], ignore_index=True)
-    rows.to_csv(ROOT / "results" / "deepar_seeds.csv", index=False)
-    pd.concat([pd.read_csv(CACHE_DIR / f"curves_{s}.csv") for s in seeds], ignore_index=True).to_csv(ROOT / "results" / "deepar_nll_curves.csv", index=False)
+    rows.to_csv(ROOT / "results" / "deepar_cac_seed.csv", index=False)
+    pd.concat([pd.read_csv(CACHE_DIR / f"curves_{s}.csv") for s in seeds], ignore_index=True).to_csv(ROOT / "results" / "deepar_duong_nll.csv", index=False)
     hp["epochs_by_seed"] = {str(s): int(rows[(rows.seed == s)].epochs.iloc[0]) for s in seeds}
     HPARAMS_PATH.write_text(json.dumps(hp, indent=2, ensure_ascii=False), encoding="utf-8")
     print("đã đóng băng", hp, flush=True)
 
 
 def stage_seed_test(seed: int) -> None:
-    """TEST: huấn luyện lại trên train+val với siêu tham số/epoch/kappa đã chốt (hparams_deepar.json), dự báo test. Mỗi seed chạy MỘT lần."""
+    """TEST: huấn luyện lại trên train+val với siêu tham số/epoch/kappa đã chốt (sieu_tham_so_deepar.json), dự báo test. Mỗi seed chạy MỘT lần."""
     hp = json.loads(HPARAMS_PATH.read_text(encoding="utf-8"))
     panel = load_panel()
     last = panel.test_start - 1
@@ -423,18 +423,18 @@ def stage_seed_test(seed: int) -> None:
                      "sample_seconds": round(time.time() - t0, 1), "n_params": m["n_params"]})
     if seed == int(CONFIG["mlp_seeds"][0]):
         ev_all = pd.concat([evaluate_forecast("DeepAR", Hh, panel, origins_for_split(panel, "test", Hh), fc[Hh]) for Hh in horizons()], ignore_index=True)
-        ev_all.to_csv(ROOT / "results" / "forecast_eval_deepar_test_all.csv", index=False)
+        ev_all.to_csv(ROOT / "results" / "danh_gia_du_bao_deepar_test_all.csv", index=False)
         _save_npz(ROOT / "results" / "forecasts" / "deepar_test.npz", panel, fc)
     pd.DataFrame(rows).to_csv(CACHE_DIR / f"seed_rows_test_{seed}.csv", index=False)
     print(f"test seed {seed} xong", rows, flush=True)
 
 
 def stage_collect_test() -> None:
-    """Gom 3 seed test vào deepar_seeds.csv."""
+    """Gom 3 seed test vào deepar_cac_seed.csv."""
     seeds = [int(s) for s in CONFIG["mlp_seeds"]]
-    prev = pd.read_csv(ROOT / "results" / "deepar_seeds.csv")
+    prev = pd.read_csv(ROOT / "results" / "deepar_cac_seed.csv")
     prev = prev[prev.split != "test"]
-    pd.concat([prev] + [pd.read_csv(CACHE_DIR / f"seed_rows_test_{s}.csv") for s in seeds], ignore_index=True).to_csv(ROOT / "results" / "deepar_seeds.csv", index=False)
+    pd.concat([prev] + [pd.read_csv(CACHE_DIR / f"seed_rows_test_{s}.csv") for s in seeds], ignore_index=True).to_csv(ROOT / "results" / "deepar_cac_seed.csv", index=False)
 
 
 def main() -> None:

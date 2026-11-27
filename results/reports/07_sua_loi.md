@@ -1,19 +1,19 @@
 # Báo cáo GĐ7 – Sửa lỗi phát hiện khi kiểm tra chéo
 
 ## 1. Đã làm gì (file tạo/sửa)
-- **Việc 1 – làm tròn LGBM-Q**: thêm `quantile_to_levels` (`src/inventory_sim.py`): phân vị NB giữ nguyên (đã là số nguyên), phân vị LGBM-Q làm tròn gần nhất `max(0, floor(q̂+0.5))`; dùng thống nhất trong `inventory_sim.py`, `safety_point.py`, `policy_analysis.py`, `final_eval.py`. Chính sách điểm giữ `ceil` (xem mục 3.1).
-- **Việc 2 – lưới kappa**: `configs/config.yaml` `tune_kappa` → {0.25, 0.35, 0.5, 0.6, 0.8, 1.0, 1.25, 1.5, 2.0}; chạy lại `run_forecasts` (val tinh chỉnh, test dùng siêu tham số đã chốt) và `mlp_seeds`.
-- **Việc 3**: `src/safety_point.py` thêm `evaluate_by_speed` (k*, q* chọn riêng trong từng nhóm speed → `results/safety_point_by_speed_test.csv`); `src/ablation.py` thêm `effect_mask`/`--effect-cols` (→ `results/ablation_effect_cols.csv`); `src/final_eval.py` ghi thêm `research_questions_test.csv`.
-- **Việc 4 – test**: `tests/test_inventory_reference.py` (10 test, đúng nội dung được cung cấp), thay test tautology `test_inventory_conservation_every_day` bằng `test_order_accounting_and_inventory_position_after_ordering` (`tests/test_inventory_sim.py`), `tests/test_gd7.py` (5 test: làm tròn LGBM-Q, NB không đổi, mức mô phỏng nguyên/không âm trên dự báo thật, đơn điệu kappa, mặt nạ cột hiệu ứng), cập nhật `tests/test_final_eval.py` (NB là số nguyên).
-- **Báo cáo/tài liệu**: `final_report.md` dựng lại hoàn toàn từ CSV mới; `05_final_test.md`, `06_bo_sung.md` dựng lại; `README.md` cập nhật; `02`, `03`, `04` giữ nguyên nội dung cũ (có ghi chú đầu trang: số liệu trước GĐ7). Bản cũ của mọi CSV/báo cáo/hparams ở `archive/pre_gd7/`.
+- **Việc 1 – làm tròn LGBM-Q**: thêm `quantile_to_levels` (`src/mo_phong_ton_kho.py`): phân vị NB giữ nguyên (đã là số nguyên), phân vị LGBM-Q làm tròn gần nhất `max(0, floor(q̂+0.5))`; dùng thống nhất trong `mo_phong_ton_kho.py`, `diem_an_toan.py`, `phan_tich_chinh_sach.py`, `danh_gia_cuoi.py`. Chính sách điểm giữ `ceil` (xem mục 3.1).
+- **Việc 2 – lưới kappa**: `configs/thong_so.yaml` `tune_kappa` → {0.25, 0.35, 0.5, 0.6, 0.8, 1.0, 1.25, 1.5, 2.0}; chạy lại `run_forecasts` (val tinh chỉnh, test dùng siêu tham số đã chốt) và `mlp_seeds`.
+- **Việc 3**: `src/diem_an_toan.py` thêm `evaluate_by_speed` (k*, q* chọn riêng trong từng nhóm speed → `results/diem_an_toan_theo_toc_do_test.csv`); `src/loai_bo_dac_trung.py` thêm `effect_mask`/`--effect-cols` (→ `results/loai_bo_hieu_ung_cot.csv`); `src/danh_gia_cuoi.py` ghi thêm `cau_hoi_nghien_cuu_test.csv`.
+- **Việc 4 – test**: `tests/kiem_thu_mo_phong_tham_chieu.py` (10 test, đúng nội dung được cung cấp), thay test tautology `test_inventory_conservation_every_day` bằng `test_order_accounting_and_inventory_position_after_ordering` (`tests/kiem_thu_mo_phong_ton_kho.py`), `tests/kiem_thu_gd7.py` (5 test: làm tròn LGBM-Q, NB không đổi, mức mô phỏng nguyên/không âm trên dự báo thật, đơn điệu kappa, mặt nạ cột hiệu ứng), cập nhật `tests/kiem_thu_danh_gia_cuoi.py` (NB là số nguyên).
+- **Báo cáo/tài liệu**: `bao_cao_cuoi_cung.md` dựng lại hoàn toàn từ CSV mới; `05_kiem_tra_cuoi.md`, `06_bo_sung.md` dựng lại; `README.md` cập nhật; `02`, `03`, `04` giữ nguyên nội dung cũ (có ghi chú đầu trang: số liệu trước GĐ7). Bản cũ của mọi CSV/báo cáo/hparams ở `archive/pre_gd7/`.
 - Số liệu chạy: `run_forecasts` val/test, `inventory_sim` val/test (cả `--ext`), `safety_point`, `policy_analysis`, `final_eval`, `calibration`, `mlp_seeds`, `ablation --effect-cols`.
 
 ## 2. Lệnh đã chạy và pytest
 ```
-python -m src.run_forecasts --split val ; python -m src.run_forecasts --split test
-python -m src.inventory_sim --split val ; ... --split test ; ... --split val --ext ; ... --split test --ext
-python -m src.policy_analysis ; python -m src.final_eval ; python -m src.calibration ; python -m src.safety_point
-python -m src.mlp_seeds ; python -m src.ablation --effect-cols
+python -m src.chay_du_bao --split val ; python -m src.chay_du_bao --split test
+python -m src.mo_phong_ton_kho --split val ; ... --split test ; ... --split val --ext ; ... --split test --ext
+python -m src.phan_tich_chinh_sach ; python -m src.danh_gia_cuoi ; python -m src.hieu_chinh ; python -m src.diem_an_toan
+python -m src.mlp_cac_seed ; python -m src.loai_bo_dac_trung --effect-cols
 python -m pytest -v
 ```
 OUTPUT NGUYÊN VĂN `python -m pytest -v`:
@@ -26,62 +26,62 @@ rootdir: D:\lt\261\PTDLHS\DA
 plugins: anyio-4.15.1, fugue-0.9.7, platformdirs-4.14.0
 collecting ... collected 56 items
 
-tests/test_eda.py::test_load_train_excludes_val PASSED                   [  1%]
-tests/test_eda.py::test_active_rows_drops_pre_launch_days PASSED         [  3%]
-tests/test_eda.py::test_weekday_table_has_seven_rows_and_mean_two PASSED [  5%]
-tests/test_eda.py::test_demand_speed_table_totals PASSED                 [  7%]
-tests/test_final_eval.py::test_group_policy_levels_follow_group_choice PASSED [  8%]
-tests/test_final_eval.py::test_case_levels_point_and_quantile PASSED     [ 10%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_daily_target_date_tracks_horizon_offset PASSED [ 12%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_evaluate_validation_summary_matches_by_date_and_id PASSED [ 14%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_join_rows_do_not_duplicate PASSED [ 16%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_n_samples_changes_quantile_output PASSED [ 17%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_pinball_known_answer PASSED [ 19%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_poisson_distribution_scaling PASSED [ 21%]
-tests/test_forecast_prob.py::ForecastProbEvaluationTest::test_sample_total_window_does_not_blow_up_for_zero_mean PASSED [ 23%]
-tests/test_gd6.py::test_k_grid_is_0p5_to_3p0_step_0p1 PASSED             [ 25%]
-tests/test_gd6.py::test_series_cost_matches_hold_plus_ratio_times_lost PASSED [ 26%]
-tests/test_gd6.py::test_mase_scale_uses_train_only_and_equals_hand_calculation PASSED [ 28%]
-tests/test_gd6.py::test_ext_quantiles_below_main_grid_and_monotone PASSED [ 30%]
-tests/test_gd6.py::test_lgbm_ext_quantiles_not_above_first_main_quantile PASSED [ 32%]
-tests/test_gd6.py::test_exog_mask_drops_only_price_snap_event_columns PASSED [ 33%]
-tests/test_gd6.py::test_mlp_seed_changes_weights_but_same_seed_reproduces PASSED [ 35%]
-tests/test_gd7.py::test_lgbm_q_levels_are_nonnegative_integers_and_round_to_nearest PASSED [ 37%]
-tests/test_gd7.py::test_nb_models_are_not_changed_by_rounding PASSED     [ 39%]
-tests/test_gd7.py::test_real_forecasts_levels_used_in_simulation_are_integers PASSED [ 41%]
-tests/test_gd7.py::test_smaller_kappa_gives_narrower_upper_tail_and_spread PASSED [ 42%]
-tests/test_gd7.py::test_effect_mask_drops_only_the_two_effect_columns PASSED [ 44%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[0-2] PASSED [ 46%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[0-3] PASSED [ 48%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[1-2] PASSED [ 50%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[1-3] PASSED [ 51%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[2-2] PASSED [ 53%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[2-3] PASSED [ 55%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[3-2] PASSED [ 57%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[3-3] PASSED [ 58%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[4-2] PASSED [ 60%]
-tests/test_inventory_reference.py::test_vectorized_matches_reference[4-3] PASSED [ 62%]
-tests/test_inventory_sim.py::test_constant_demand_matches_hand_calculation PASSED [ 64%]
-tests/test_inventory_sim.py::test_order_accounting_and_inventory_position_after_ordering PASSED [ 66%]
-tests/test_inventory_sim.py::test_costs_nonnegative_and_fill_rate_range_and_monotone_in_level PASSED [ 67%]
-tests/test_inventory_sim.py::test_reproducible_same_inputs PASSED        [ 69%]
-tests/test_outputs.py::test_val_npz_shapes_cover_all_series_and_origins_and_monotone PASSED [ 71%]
-tests/test_outputs.py::test_val_eval_csv_schema_and_coverage_matches_npz PASSED [ 73%]
-tests/test_outputs.py::test_actual_in_npz_equals_window_sum_of_val_demand PASSED [ 75%]
-tests/test_outputs.py::test_md_table_rounds_to_four_decimals PASSED      [ 76%]
-tests/test_outputs.py::test_test_npz_origins_inside_test_split_and_shapes PASSED [ 78%]
-tests/test_prob_models.py::test_pinball_known_answer PASSED              [ 80%]
-tests/test_prob_models.py::test_nb_quantiles_match_scipy_and_cdf_definition PASSED [ 82%]
-tests/test_prob_models.py::test_nb_quantiles_monotone_in_q_and_zero_mean PASSED [ 83%]
-tests/test_prob_models.py::test_legacy_sampler_mean_not_inflated_when_n_below_one PASSED [ 85%]
-tests/test_prob_models.py::test_window_targets_values_and_nan_tail PASSED [ 87%]
-tests/test_prob_models.py::test_origins_window_inside_split PASSED       [ 89%]
-tests/test_prob_models.py::test_croston_tsb_constant_demand PASSED       [ 91%]
-tests/test_prob_models.py::test_no_leak_stat_forecast_and_alpha PASSED   [ 92%]
-tests/test_prob_models.py::test_no_leak_features PASSED                  [ 94%]
-tests/test_prob_models.py::test_estimate_alpha_known_poisson_is_small PASSED [ 96%]
-tests/test_prob_models.py::test_evaluate_forecast_coverage_and_shapes PASSED [ 98%]
-tests/test_prob_models.py::test_lgbm_quantiles_monotone_and_shape PASSED [100%]
+tests/kiem_thu_kham_pha_du_lieu.py::test_load_train_excludes_val PASSED                   [  1%]
+tests/kiem_thu_kham_pha_du_lieu.py::test_active_rows_drops_pre_launch_days PASSED         [  3%]
+tests/kiem_thu_kham_pha_du_lieu.py::test_weekday_table_has_seven_rows_and_mean_two PASSED [  5%]
+tests/kiem_thu_kham_pha_du_lieu.py::test_demand_speed_table_totals PASSED                 [  7%]
+tests/kiem_thu_danh_gia_cuoi.py::test_group_policy_levels_follow_group_choice PASSED [  8%]
+tests/kiem_thu_danh_gia_cuoi.py::test_case_levels_point_and_quantile PASSED     [ 10%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_daily_target_date_tracks_horizon_offset PASSED [ 12%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_evaluate_validation_summary_matches_by_date_and_id PASSED [ 14%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_join_rows_do_not_duplicate PASSED [ 16%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_n_samples_changes_quantile_output PASSED [ 17%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_pinball_known_answer PASSED [ 19%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_poisson_distribution_scaling PASSED [ 21%]
+tests/kiem_thu_du_bao_xac_suat.py::ForecastProbEvaluationTest::test_sample_total_window_does_not_blow_up_for_zero_mean PASSED [ 23%]
+tests/kiem_thu_gd6.py::test_k_grid_is_0p5_to_3p0_step_0p1 PASSED             [ 25%]
+tests/kiem_thu_gd6.py::test_series_cost_matches_hold_plus_ratio_times_lost PASSED [ 26%]
+tests/kiem_thu_gd6.py::test_mase_scale_uses_train_only_and_equals_hand_calculation PASSED [ 28%]
+tests/kiem_thu_gd6.py::test_ext_quantiles_below_main_grid_and_monotone PASSED [ 30%]
+tests/kiem_thu_gd6.py::test_lgbm_ext_quantiles_not_above_first_main_quantile PASSED [ 32%]
+tests/kiem_thu_gd6.py::test_exog_mask_drops_only_price_snap_event_columns PASSED [ 33%]
+tests/kiem_thu_gd6.py::test_mlp_seed_changes_weights_but_same_seed_reproduces PASSED [ 35%]
+tests/kiem_thu_gd7.py::test_lgbm_q_levels_are_nonnegative_integers_and_round_to_nearest PASSED [ 37%]
+tests/kiem_thu_gd7.py::test_nb_models_are_not_changed_by_rounding PASSED     [ 39%]
+tests/kiem_thu_gd7.py::test_real_forecasts_levels_used_in_simulation_are_integers PASSED [ 41%]
+tests/kiem_thu_gd7.py::test_smaller_kappa_gives_narrower_upper_tail_and_spread PASSED [ 42%]
+tests/kiem_thu_gd7.py::test_effect_mask_drops_only_the_two_effect_columns PASSED [ 44%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[0-2] PASSED [ 46%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[0-3] PASSED [ 48%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[1-2] PASSED [ 50%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[1-3] PASSED [ 51%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[2-2] PASSED [ 53%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[2-3] PASSED [ 55%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[3-2] PASSED [ 57%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[3-3] PASSED [ 58%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[4-2] PASSED [ 60%]
+tests/kiem_thu_mo_phong_tham_chieu.py::test_vectorized_matches_reference[4-3] PASSED [ 62%]
+tests/kiem_thu_mo_phong_ton_kho.py::test_constant_demand_matches_hand_calculation PASSED [ 64%]
+tests/kiem_thu_mo_phong_ton_kho.py::test_order_accounting_and_inventory_position_after_ordering PASSED [ 66%]
+tests/kiem_thu_mo_phong_ton_kho.py::test_costs_nonnegative_and_fill_rate_range_and_monotone_in_level PASSED [ 67%]
+tests/kiem_thu_mo_phong_ton_kho.py::test_reproducible_same_inputs PASSED        [ 69%]
+tests/kiem_thu_dau_ra.py::test_val_npz_shapes_cover_all_series_and_origins_and_monotone PASSED [ 71%]
+tests/kiem_thu_dau_ra.py::test_val_eval_csv_schema_and_coverage_matches_npz PASSED [ 73%]
+tests/kiem_thu_dau_ra.py::test_actual_in_npz_equals_window_sum_of_val_demand PASSED [ 75%]
+tests/kiem_thu_dau_ra.py::test_md_table_rounds_to_four_decimals PASSED      [ 76%]
+tests/kiem_thu_dau_ra.py::test_test_npz_origins_inside_test_split_and_shapes PASSED [ 78%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_pinball_known_answer PASSED              [ 80%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_nb_quantiles_match_scipy_and_cdf_definition PASSED [ 82%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_nb_quantiles_monotone_in_q_and_zero_mean PASSED [ 83%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_legacy_sampler_mean_not_inflated_when_n_below_one PASSED [ 85%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_window_targets_values_and_nan_tail PASSED [ 87%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_origins_window_inside_split PASSED       [ 89%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_croston_tsb_constant_demand PASSED       [ 91%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_no_leak_stat_forecast_and_alpha PASSED   [ 92%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_no_leak_features PASSED                  [ 94%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_estimate_alpha_known_poisson_is_small PASSED [ 96%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_evaluate_forecast_coverage_and_shapes PASSED [ 98%]
+tests/kiem_thu_mo_hinh_xac_suat.py::test_lgbm_quantiles_monotone_and_shape PASSED [100%]
 
 ============================= 56 passed in 12.60s =============================
 ```
@@ -216,7 +216,7 @@ MLP-NB 3 seed TRƯỚC/SAU (pinball_avg, WAPE, MASE; trung bình ± độ lệch
 | SAU | val | 4 | 1.0897 ± 0.0039 | 0.3315 ± 0.0022 | 0.7748 ± 0.0043 | 30/16/26 | 0.5/0.6/0.6 |
 | TRUOC | val | 4 | 1.0899 ± 0.0038 | 0.3315 ± 0.0022 | 0.7748 ± 0.0043 | 30/16/26 | 0.5/0.5/0.5 |
 
-- hparams.json: sha256 TRƯỚC `c26d657819002fb031ee7405d7c9bdc07685428e67a13cb607b082863f72e208`, SAU `8bc7d7507bf0167e83b1d31f831fb8edb5edf60c23a742c67b32b0f86366765b` (đổi vì kappa của CrostonSBA/TSB và LGBM-PoisNB đổi; lý do: lưới kappa mới). Test chỉ chạy một lần với siêu tham số đã chốt trên val (không chọn kappa theo test).
+- sieu_tham_so.json: sha256 TRƯỚC `c26d657819002fb031ee7405d7c9bdc07685428e67a13cb607b082863f72e208`, SAU `8bc7d7507bf0167e83b1d31f831fb8edb5edf60c23a742c67b32b0f86366765b` (đổi vì kappa của CrostonSBA/TSB và LGBM-PoisNB đổi; lý do: lưới kappa mới). Test chỉ chạy một lần với siêu tham số đã chốt trên val (không chọn kappa theo test).
 - Hệ quả: thay đổi nhỏ (pinball_avg thay đổi ở chữ số thập phân thứ 3–4), không đổi thứ hạng mô hình; kappa của WindowAverage, SeasonalNaive và MLP-NB (seed 42, mô hình chính) giữ 0.5; MLP-NB seed 43 và 44 đổi 0.5 → 0.6; CrostonSBA/TSB đổi 0.5 → 0.6 và LGBM-PoisNB 0.75 → 0.8 (các giá trị mới nằm trong lưới cũ hoặc là lân cận của giá trị cũ, nên không có dấu hiệu tối ưu nằm sát cận dưới).
 - Test đơn điệu kappa (`test_smaller_kappa_gives_narrower_upper_tail_and_spread`): **không thể kiểm chứng đúng nghĩa đen "phân vị hẹp hơn hoặc bằng ở MỌI q"**: với trung bình cố định, alpha nhỏ hơn làm phân vị thấp/giữa tăng (ví dụ mu=30, alpha=1: Q0.5 từ 14 (kappa 2.0) lên 27 (kappa 0.25)), và ở alpha lớn thậm chí q=0.9 không đơn điệu. Test được viết cho tính chất đúng: phân vị đuôi trên (q ≥ 0.95) không giảm theo kappa và khoảng Q95−Q50 không giảm theo kappa.
 
@@ -229,7 +229,7 @@ Câu cũ "Ở tỷ lệ 1–2 điểm an toàn thường rẻ hơn hoặc ngang"
 | 3 | 1 | WindowAverage, SeasonalNaive, CrostonSBA, TSB, LGBM-Q, LGBM-PoisNB, MLP-NB | - | - |
 | 3 | 2 | WindowAverage, SeasonalNaive, TSB | CrostonSBA, LGBM-Q, LGBM-PoisNB, MLP-NB | - |
 
-Tỷ lệ 2, L=2: ví dụ WindowAverage 2.46 [0.91; 4.08] (số trước GĐ7: 2.46 [0.91; 4.08]), MLP-NB 3.08 [1.13; 5.14] — hai ví dụ này KHÔNG đổi sau GĐ7 vì WindowAverage và MLP-NB (seed 42) không bị ảnh hưởng bởi làm tròn LGBM-Q và kappa của chúng giữ 0.5; số của CrostonSBA, TSB, LGBM-Q, LGBM-PoisNB thì đã được tính lại (xem bảng trên). Các câu tương ứng trong `final_report.md` được viết lại bằng số mới (xem mục 6 báo cáo cuối); `06_bo_sung.md` mục 3 cũng được dựng lại.
+Tỷ lệ 2, L=2: ví dụ WindowAverage 2.46 [0.91; 4.08] (số trước GĐ7: 2.46 [0.91; 4.08]), MLP-NB 3.08 [1.13; 5.14] — hai ví dụ này KHÔNG đổi sau GĐ7 vì WindowAverage và MLP-NB (seed 42) không bị ảnh hưởng bởi làm tròn LGBM-Q và kappa của chúng giữ 0.5; số của CrostonSBA, TSB, LGBM-Q, LGBM-PoisNB thì đã được tính lại (xem bảng trên). Các câu tương ứng trong `bao_cao_cuoi_cung.md` được viết lại bằng số mới (xem mục 6 báo cáo cuối); `06_bo_sung.md` mục 3 cũng được dựng lại.
 
 ### 3.4 Việc 3b – bỏ riêng fut_wd_index và fut_event_index (mã hóa mục tiêu trong mẫu)
 Huấn luyện LightGBM-Q bỏ riêng hai cột (30 → 28 đặc trưng), cùng cấu hình:
@@ -252,7 +252,7 @@ Chênh lệch tương đối pinball_avg: -0.17% … +0.27% (|chênh| lớn nh�
 | val | 3 | 0.9109 | 0.9115 | 0.0007 | 0.0007 |
 | val | 4 | 1.0922 | 1.0927 | 0.0005 | 0.0005 |
 
-Kết luận: nguy cơ "tin quá mức vào đặc trưng sự kiện hiếm" không thấy thể hiện trong sai số ngoài mẫu (val/test). Hạn chế đã ghi vào `final_report.md`.
+Kết luận: nguy cơ "tin quá mức vào đặc trưng sự kiện hiếm" không thấy thể hiện trong sai số ngoài mẫu (val/test). Hạn chế đã ghi vào `bao_cao_cuoi_cung.md`.
 
 ### 3.5 Việc 3c – câu 2: phân vị q* vs điểm an toàn k* theo nhóm tốc độ (test, tỷ lệ 10, L=2; k*, q* chọn trên val RIÊNG trong từng nhóm)
 | model | group | n | k*_val | q*_val | chi_phi_diem_thuan(k=1) | chi_phi_diem_an_toan(k*) | chi_phi_phan_vi(q*) | k* - q* [KTC] | q* - diem_thuan [KTC] | k* - diem_thuan [KTC] |
@@ -283,7 +283,7 @@ Chú giải: k* − q* dương = phân vị rẻ hơn; q* − điểm thuần â
 - Hàng nhanh: q* − điểm thuần -66.94 … -33.11 (đều rẻ hơn rõ: 7/7 mô hình), nhưng k* − q* chỉ 0.72 … 6.68: phân vị rẻ hơn điểm an toàn rõ ở LGBM-Q, MLP-NB (còn lại không phân biệt được). **Lợi thế của phân vị ở hàng nhanh gần như biến mất khi so với điểm an toàn**: chỉ còn khoảng 1–1.5% chi phí và chỉ ở hai mô hình (LGBM-Q, MLP-NB).
 - Hàng trung bình: không phân biệt được hoặc điểm an toàn rẻ hơn (rẻ hơn rõ: SeasonalNaive).
 - Hàng chậm: điểm an toàn rẻ hơn hoặc ngang phân vị (rẻ hơn rõ: WindowAverage, SeasonalNaive, CrostonSBA; phân vị rẻ hơn rõ: LGBM-PoisNB).
-- **L=3** (bảng dưới; `results/safety_point_by_speed_test.csv`) — kết quả KHÔNG hoàn toàn giống L=2: hàng nhanh: phân vị rẻ hơn điểm an toàn rõ ở MLP-NB, điểm an toàn rẻ hơn rõ ở WindowAverage, SeasonalNaive, CrostonSBA; hàng trung bình: phân vị rẻ hơn rõ ở LGBM-Q, LGBM-PoisNB, điểm an toàn rẻ hơn rõ ở WindowAverage; hàng chậm: phân vị rẻ hơn rõ ở không mô hình nào, điểm an toàn rẻ hơn rõ ở WindowAverage, SeasonalNaive, CrostonSBA. Nghĩa là kết luận "lợi thế phân vị ở hàng nhanh biến mất" chắc ở L=2 (chỉ LGBM-Q và MLP-NB còn lợi thế nhỏ) và mang tính hỗn hợp ở L=3 (MLP-NB còn lợi thế ở hàng nhanh, nhưng ở CrostonSBA, SeasonalNaive, WindowAverage điểm an toàn rẻ hơn).
+- **L=3** (bảng dưới; `results/diem_an_toan_theo_toc_do_test.csv`) — kết quả KHÔNG hoàn toàn giống L=2: hàng nhanh: phân vị rẻ hơn điểm an toàn rõ ở MLP-NB, điểm an toàn rẻ hơn rõ ở WindowAverage, SeasonalNaive, CrostonSBA; hàng trung bình: phân vị rẻ hơn rõ ở LGBM-Q, LGBM-PoisNB, điểm an toàn rẻ hơn rõ ở WindowAverage; hàng chậm: phân vị rẻ hơn rõ ở không mô hình nào, điểm an toàn rẻ hơn rõ ở WindowAverage, SeasonalNaive, CrostonSBA. Nghĩa là kết luận "lợi thế phân vị ở hàng nhanh biến mất" chắc ở L=2 (chỉ LGBM-Q và MLP-NB còn lợi thế nhỏ) và mang tính hỗn hợp ở L=3 (MLP-NB còn lợi thế ở hàng nhanh, nhưng ở CrostonSBA, SeasonalNaive, WindowAverage điểm an toàn rẻ hơn).
 L=3:
 | model | group | n | k*_val | q*_val | chi_phi_diem_thuan(k=1) | chi_phi_diem_an_toan(k*) | chi_phi_phan_vi(q*) | k* - q* [KTC] | q* - diem_thuan [KTC] | k* - diem_thuan [KTC] |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -311,19 +311,19 @@ L=3:
 
 
 ## 4. File sinh ra
-`results/inventory_sim_{val,test}[_ext].csv`, `q_star_val.csv`, `q_star_ext_val.csv`, `policy_table_val.csv`, `policy_eval_val_test.csv`, `policy_eval_bootstrap.csv`, `test_qstar_transfer.csv`, `research_questions_{val,test}.csv`, `safety_point_test.csv`, `safety_point_by_speed_test.csv`, `forecast_eval_{val,test}_all.csv`, `hparams.json`, `tuning_log.csv`, `calibration_*.csv`, `mlp_seeds.csv`, `mlp_nll_curves.csv`, `ablation_effect_cols.csv`, `forecasts/{val,test}.npz`, hình `results/figures/policy_*.png`. Bản trước GĐ7: `archive/pre_gd7/`.
+`results/mo_phong_ton_kho_{val,test}[_ext].csv`, `q_sao_val.csv`, `q_sao_ext_val.csv`, `bang_chinh_sach_val.csv`, `danh_gia_chinh_sach_val_test.csv`, `danh_gia_chinh_sach_bootstrap.csv`, `chuyen_q_sao_test.csv`, `cau_hoi_nghien_cuu_{val,test}.csv`, `diem_an_toan_test.csv`, `diem_an_toan_theo_toc_do_test.csv`, `danh_gia_du_bao_{val,test}_all.csv`, `sieu_tham_so.json`, `nhat_ky_tinh_chinh.csv`, `calibration_*.csv`, `mlp_cac_seed.csv`, `mlp_duong_nll.csv`, `loai_bo_hieu_ung_cot.csv`, `forecasts/{val,test}.npz`, hình `results/figures/chinh_sach_*.png`. Bản trước GĐ7: `archive/pre_gd7/`.
 
 ## 5. Cấu hình
 Seed 42. Lưới kappa {0.25, 0.35, 0.5, 0.6, 0.8, 1.0, 1.25, 1.5, 2.0}; lưới q chính 0.5–0.99, phụ 0.3/0.4; k 0.5–3.0 bước 0.1; bootstrap 2000 lần seed 42. lightgbm 4.7.0, torch 2.15.0+cpu, scipy 1.18.1, numpy 2.5.4, pandas 2.3.3. CPU 12 luồng; các tác vụ chạy song song nên thời gian từng bước dài hơn GĐ6 (run_forecasts val ≈ 654 s, test ≈ 310 s; mlp_seeds seed đầu 736 s).
 
 ## 6. Vấn đề / bất thường / giả định
 - Tiền đề "kappa chạm cận 0.5" không đúng với lưới cũ (xem 3.2); lưới mới theo yêu cầu thực ra thu hẹp cận dưới (0.1 → 0.25) mà kết quả không đổi nhiều.
-- **Đính chính GĐ6**: lời tóm tắt "cả 3 seed MLP-NB đều hơn LGBM-Q trên val" chỉ đúng ở H=3; ở H=4 trên val seed 42 (1.0929) kém hơn LGBM-Q (1.0922), tức hai mô hình gần như ngang trên val ở H=4 (kết quả lẫn lộn giữa các seed). Đã sửa trong `06_bo_sung.md` và `final_report.md` (val H=3: MLP-NB 0.9014–0.9029 vs LGBM-Q 0.9109 → cả 3 seed tốt hơn LGBM-Q; val H=4: MLP-NB 1.0853–1.0929 vs LGBM-Q 1.0922 → lẫn lộn (một số seed tốt hơn, một số kém hơn); test H=3: MLP-NB 0.9432–0.9477 vs LGBM-Q 0.9354 → cả 3 seed kém hơn LGBM-Q; test H=4: MLP-NB 1.1374–1.1489 vs LGBM-Q 1.1344 → cả 3 seed kém hơn LGBM-Q).
+- **Đính chính GĐ6**: lời tóm tắt "cả 3 seed MLP-NB đều hơn LGBM-Q trên val" chỉ đúng ở H=3; ở H=4 trên val seed 42 (1.0929) kém hơn LGBM-Q (1.0922), tức hai mô hình gần như ngang trên val ở H=4 (kết quả lẫn lộn giữa các seed). Đã sửa trong `06_bo_sung.md` và `bao_cao_cuoi_cung.md` (val H=3: MLP-NB 0.9014–0.9029 vs LGBM-Q 0.9109 → cả 3 seed tốt hơn LGBM-Q; val H=4: MLP-NB 1.0853–1.0929 vs LGBM-Q 1.0922 → lẫn lộn (một số seed tốt hơn, một số kém hơn); test H=3: MLP-NB 0.9432–0.9477 vs LGBM-Q 0.9354 → cả 3 seed kém hơn LGBM-Q; test H=4: MLP-NB 1.1374–1.1489 vs LGBM-Q 1.1344 → cả 3 seed kém hơn LGBM-Q).
 - Sau làm tròn, LGBM-Q và MLP-NB hòa về chi phí ở L=2: kết luận "mô hình tốt nhất" không còn một mô hình duy nhất.
 - Điểm thuần dùng ceil (thiên bảo thủ) – xem 3.1; k* hấp thụ.
 - k* và q* cùng chọn trên val (lạc quan), chọn theo nhóm tốc độ càng dễ nhiễu (nhóm slow n=176).
 - Chỉ 28 ngày; KTC coi chuỗi độc lập; tỷ lệ 1–2 chạm cận lưới k (0.5) và q (0.3).
-- Các báo cáo 02, 03, 04 là ảnh chụp trước GĐ7 (số liệu của chúng khác nhẹ ở CrostonSBA/TSB/LGBM-PoisNB và các mục mô phỏng của LGBM-Q); bản dùng thống nhất là 05, 06, 07 và `final_report.md`.
+- Các báo cáo 02, 03, 04 là ảnh chụp trước GĐ7 (số liệu của chúng khác nhẹ ở CrostonSBA/TSB/LGBM-PoisNB và các mục mô phỏng của LGBM-Q); bản dùng thống nhất là 05, 06, 07 và `bao_cao_cuoi_cung.md`.
 
 ## 7. Chưa làm
 Chưa chạy lại MLP-NB H=4 với 46 epoch; chưa mở lưới q dưới 0.3 và k dưới 0.5; chưa đối chứng Croston/TSB + biến ngoại sinh; chưa cập nhật số liệu trong báo cáo 02–04 (chỉ ghi chú).
